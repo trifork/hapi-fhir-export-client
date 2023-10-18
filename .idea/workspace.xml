@@ -5,7 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a78f7abd-5fab-43a1-a2cb-e26740733a10" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/test/com/trifork/ehealth/export/BDExportClientIT.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/com/trifork/ehealth/export/test/HapiFhirTestContainer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/com/trifork/ehealth/export/BDEClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/com/trifork/ehealth/export/BDExportClient.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,7 +56,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Modules",
+    "project.structure.last.edited": "Project",
     "project.structure.proportion": "0.16195726",
     "project.structure.side.proportion": "0.2",
     "vue.rearranger.settings.migration": "true"
@@ -62,6 +67,28 @@
       <recent name="C:\src\hapi-fhir-export-client\src\java" />
     </key>
   </component>
+  <component name="RunManager">
+    <configuration name="BDExportClientIT" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="hapi-fhir-export-client" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.trifork.ehealth.export.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.trifork.ehealth.export" />
+      <option name="MAIN_CLASS_NAME" value="com.trifork.ehealth.export.BDExportClientIT" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.BDExportClientIT" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -71,7 +98,7 @@
       <option name="presentableId" value="Default" />
       <updated>1697611777600</updated>
       <workItem from="1697611782326" duration="246000" />
-      <workItem from="1697612037585" duration="2865000" />
+      <workItem from="1697612037585" duration="4457000" />
     </task>
     <servers />
   </component>
