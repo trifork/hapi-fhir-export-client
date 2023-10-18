@@ -12,6 +12,5 @@ public class HapiFhirExportClient {
         this.hapiFhirClient = hapiFhirClient;
     }
 
-public class BDExportClient<B extends IBaseBinary> {
 
 }
