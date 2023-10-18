@@ -1,40 +1,55 @@
 package com.trifork.ehealth.export;
 
+import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import com.trifork.ehealth.export.test.HapiFhirTestContainer;
+import org.hl7.fhir.r4.model.CodeableConcept;
+import org.hl7.fhir.r4.model.Coding;
+import org.hl7.fhir.r4.model.Condition;
+import org.hl7.fhir.r4.model.codesystems.ConditionClinical;
 import org.junit.jupiter.api.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class HapiFhirExportClientIT {
-    private static HapiFhirTestContainer hapiFhirTestContainer;
-    private static IGenericClient hapiFhirClient;
+    private HapiFhirTestContainer hapiFhirTestContainer;
+    private HapiFhirExportClient hapiFhirExportClient;
+    private final List<Condition> createdBundles = new ArrayList<>();
 
-    private Logger logger = LoggerFactory.getLogger(HapiFhirExportClientIT.class);
+    @BeforeAll
+    void setup() {
+        hapiFhirTestContainer = new HapiFhirTestContainer();
+        hapiFhirTestContainer.start();
 
-   @BeforeAll
-    static void setup() {
-        if (hapiFhirTestContainer == null) {
-            hapiFhirTestContainer = new HapiFhirTestContainer();
-            hapiFhirTestContainer.start();
+        IGenericClient hapiFhirClient = hapiFhirTestContainer.createHapiFhirClient();
+        hapiFhirExportClient = new HapiFhirExportClient(hapiFhirClient);
+
+        // Create test resources for export
+        for (ConditionClinical conditionClinical : ConditionClinical.values()) {
+            MethodOutcome outcome = hapiFhirClient.create().resource(createCondition(conditionClinical)).execute();
+            createdBundles.add((Condition) outcome.getResource());
         }
-
-        hapiFhirClient = hapiFhirTestContainer.createHapiFhirClient();
     }
 
     @AfterAll
-    static void tearDown() {
-        if (hapiFhirTestContainer != null) {
-            hapiFhirTestContainer.stop();
-            hapiFhirTestContainer = null;
-        }
+    void tearDown() {
+        hapiFhirTestContainer.stop();
     }
 
     @Test
-    void test_container_setup() {
-        logger.info("TEST");
+    void bulk_data_export_is_initiated() {
 
-        //hapiFhirClient.capabilities();
+    }
+
+    private static Condition createCondition(ConditionClinical conditionClinical) {
+        return new Condition()
+                .setClinicalStatus(
+                        new CodeableConcept(
+                                new Coding(conditionClinical.getSystem(), conditionClinical.toCode(), conditionClinical.getDisplay())
+                        )
+                );
     }
 }

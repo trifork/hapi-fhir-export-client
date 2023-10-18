@@ -32,8 +32,8 @@ public class HapiFhirTestContainer {
 
         String containerUrl = String.format(
                 "http://%s:%s/fhir",
-                this.hapiFhirTestContainer.getMappedPort(HAPI_PORT),
-                this.hapiFhirTestContainer.getHost()
+                this.hapiFhirTestContainer.getHost(),
+                this.hapiFhirTestContainer.getMappedPort(HAPI_PORT)
         );
 
         return FhirContext.forR4().newRestfulGenericClient(containerUrl);
