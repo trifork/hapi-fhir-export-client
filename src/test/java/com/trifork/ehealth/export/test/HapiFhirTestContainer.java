@@ -17,8 +17,11 @@ public class HapiFhirTestContainer {
         this.hapiFhirTestContainer = createHapiFhirTestContainer();
     }
 
-    public void start() {
+    public void start() throws InterruptedException {
         this.hapiFhirTestContainer.start();
+
+        // Give HAPI FHIR a chance to start up properly, so job definitions don't fail.
+        Thread.sleep(10000);
     }
 
     public void stop() {
@@ -44,6 +47,7 @@ public class HapiFhirTestContainer {
                 .withExposedPorts(HAPI_PORT)
                 .withEnv("hapi.fhir.fhir_version", "R4")
                 .withEnv("hapi.fhir.bulk_export_enabled ", "true")
+                .withEnv("hapi.fhir.binary_storage_enabled", "true")
                 .waitingFor(Wait.forHttp("/fhir/metadata").withStartupTimeout(Duration.ofMinutes(2)));
     }
 }

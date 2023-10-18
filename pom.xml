@@ -22,6 +22,7 @@
         <!-- Test dependencies -->
         <testcontainers.version>1.18.3</testcontainers.version>
         <junit.version>5.10.0</junit.version>
+        <assertj.version>3.24.2</assertj.version>
         <mockito.version>5.4.0</mockito.version>
     </properties>
 
@@ -111,6 +112,12 @@
             <artifactId>org.hl7.fhir.utilities</artifactId>
         </dependency>
 
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>${assertj.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
