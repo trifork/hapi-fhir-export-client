@@ -1,5 +1,7 @@
 package com.trifork.ehealth.export.test;
 
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.rest.client.api.IGenericClient;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
@@ -23,8 +25,18 @@ public class HapiFhirTestContainer {
         this.hapiFhirTestContainer.stop();
     }
 
-    public int getMappedPort() {
-        return this.hapiFhirTestContainer.getMappedPort(HAPI_PORT);
+    public IGenericClient createHapiFhirClient() {
+        if (!hapiFhirTestContainer.isRunning()) {
+            throw new RuntimeException("Run the container first..");
+        }
+
+        String containerUrl = String.format(
+                "http://%s:%s/fhir",
+                this.hapiFhirTestContainer.getMappedPort(HAPI_PORT),
+                this.hapiFhirTestContainer.getHost()
+        );
+
+        return FhirContext.forR4().newRestfulGenericClient(containerUrl);
     }
 
     private static GenericContainer<?> createHapiFhirTestContainer() {
