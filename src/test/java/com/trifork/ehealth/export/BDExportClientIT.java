@@ -1,6 +1,6 @@
 package com.trifork.ehealth.export;
 
-import ca.uhn.fhir.rest.api.Constants;
+import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import com.trifork.ehealth.export.test.HapiFhirTestContainer;
@@ -18,9 +18,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class ExportClientIT {
+public class BDExportClientIT {
     private HapiFhirTestContainer hapiFhirTestContainer;
-    private ExportClient exportClient;
+    private BDExportClient BDExportClient;
     private final List<Condition> createdBundles = new ArrayList<>();
 
     @BeforeAll
@@ -28,8 +28,9 @@ public class ExportClientIT {
         hapiFhirTestContainer = new HapiFhirTestContainer();
         hapiFhirTestContainer.start();
 
-        IGenericClient hapiFhirClient = hapiFhirTestContainer.createHapiFhirClient();
-        exportClient = new ExportClient(hapiFhirClient);
+        FhirContext fhirContext = FhirContext.forR4();
+        IGenericClient hapiFhirClient = hapiFhirTestContainer.createHapiFhirClient(fhirContext);
+        BDExportClient = new BDExportClient(fhirContext, hapiFhirClient);
 
         // Create test resources for export
         for (ConditionClinical conditionClinical : ConditionClinical.values()) {
@@ -45,8 +46,7 @@ public class ExportClientIT {
 
     @Test
     void bulk_data_export_is_initiated() {
-        Parameters parameters = createExportParameters();
-        MethodOutcome outcome = exportClient.initiate(parameters);
+        MethodOutcome outcome = BDExportClient.initiate(createExportRequest());
 
         assertEquals(202, outcome.getResponseStatusCode());
         assertTrue(outcome.getResponseHeaders().containsKey("content-location"));
@@ -55,15 +55,12 @@ public class ExportClientIT {
         assertThat(contentLocation).matches(Pattern.compile("^.*\\/fhir\\/\\$export-poll-status\\?_jobId=([a-f0-9-]+)$"));
     }
 
-
     private static String getContentLocation(MethodOutcome outcome) {
         return outcome.getResponseHeaders().get("content-location").get(0);
     }
 
-    private static Parameters createExportParameters() {
-        return new Parameters()
-                .addParameter("_outputFormat", Constants.CT_FHIR_NDJSON)
-                .addParameter("_type", ResourceType.Condition.name());
+    private static BDExportRequest createExportRequest() {
+        return new BDExportRequest().addType(ResourceType.Condition);
     }
 
     private static Condition createCondition(ConditionClinical conditionClinical) {

@@ -28,7 +28,7 @@ public class HapiFhirTestContainer {
         this.hapiFhirTestContainer.stop();
     }
 
-    public IGenericClient createHapiFhirClient() {
+    public IGenericClient createHapiFhirClient(FhirContext fhirContext) {
         if (!hapiFhirTestContainer.isRunning()) {
             throw new RuntimeException("Run the container first..");
         }
@@ -39,7 +39,7 @@ public class HapiFhirTestContainer {
                 this.hapiFhirTestContainer.getMappedPort(HAPI_PORT)
         );
 
-        return FhirContext.forR4().newRestfulGenericClient(containerUrl);
+        return fhirContext.newRestfulGenericClient(containerUrl);
     }
 
     private static GenericContainer<?> createHapiFhirTestContainer() {

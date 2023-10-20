@@ -1,14 +1,17 @@
 package com.trifork.ehealth.export;
 
+import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import org.hl7.fhir.r4.model.Parameters;
 
 
-public class ExportClient {
+public class BDExportClient {
+    private final FhirContext fhirContext;
     private final IGenericClient hapiFhirClient;
 
-    public ExportClient(IGenericClient hapiFhirClient) {
+    public BDExportClient(FhirContext fhirContext, IGenericClient hapiFhirClient) {
+        this.fhirContext = fhirContext;
         this.hapiFhirClient = hapiFhirClient;
     }
 
@@ -20,7 +23,9 @@ public class ExportClient {
      * page for more information on how to use this feature.
      * </p>
      */
-    public MethodOutcome initiate(Parameters parameters) {
+    public MethodOutcome initiate(BDExportRequest request) {
+        Parameters parameters = request.toParameters(fhirContext);
+
         return hapiFhirClient.operation()
                 .onServer()
                 .named("export")

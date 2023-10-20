@@ -5,13 +5,27 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d7f517b1-c294-4da7-84dd-dd8794acb57a" name="Changes" comment="Reconfigure project as a maven module.">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportTypeFilter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/TestBDExportRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/TestBDExportTypeFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/ExportClientIT.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/ExportClientIT.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/ExportClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/ExportClientIT.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/BDExportClientIT.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/test/HapiFhirTestContainer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/test/HapiFhirTestContainer.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -44,11 +58,12 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+    "spring.configuration.checksum": "00ca9e270cebeb9f631e765c70c0462e",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager" selected="JUnit.HapiFhirExportClientIT.bulk_data_export_is_initiated">
-    <configuration name="ExportClientIT" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="JUnit.TestBDExportRequest">
+    <configuration name="TestBDExportRequest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="hapi-fhir-export-client" />
       <extension name="coverage">
         <pattern>
@@ -57,13 +72,13 @@
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="com.trifork.ehealth.export" />
-      <option name="MAIN_CLASS_NAME" value="com.trifork.ehealth.export.ExportClientIT" />
+      <option name="MAIN_CLASS_NAME" value="com.trifork.ehealth.export.TestBDExportRequest" />
       <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="ExportClientIT.bulk_data_export_is_initiated" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="TestBDExportRequest.is_mapped_to_parameters" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="hapi-fhir-export-client" />
       <extension name="coverage">
         <pattern>
@@ -72,17 +87,59 @@
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="com.trifork.ehealth.export" />
-      <option name="MAIN_CLASS_NAME" value="com.trifork.ehealth.export.ExportClientIT" />
-      <option name="METHOD_NAME" value="bulk_data_export_is_initiated" />
+      <option name="MAIN_CLASS_NAME" value="com.trifork.ehealth.export.TestBDExportRequest" />
+      <option name="METHOD_NAME" value="is_mapped_to_parameters" />
       <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TestBDExportTypeFilter" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="hapi-fhir-export-client" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.trifork.ehealth.export.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.trifork.ehealth.export" />
+      <option name="MAIN_CLASS_NAME" value="com.trifork.ehealth.export.TestBDExportTypeFilter" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TestBDExportTypeFilter.has_valid_query_string_with_and_operator" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="hapi-fhir-export-client" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.trifork.ehealth.export.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.trifork.ehealth.export" />
+      <option name="MAIN_CLASS_NAME" value="com.trifork.ehealth.export.TestBDExportTypeFilter" />
+      <option name="METHOD_NAME" value="has_valid_query_string_with_and_operator" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="java in hapi-fhir-export-client" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="hapi-fhir-export-client" />
+      <option name="TEST_OBJECT" value="directory" />
+      <dir value="$PROJECT_DIR$/src/test/java" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.HapiFhirExportClientIT.bulk_data_export_is_initiated" />
-        <item itemvalue="JUnit.HapiFhirExportClientIT" />
+        <item itemvalue="JUnit.TestBDExportRequest" />
+        <item itemvalue="JUnit.java in hapi-fhir-export-client" />
+        <item itemvalue="JUnit.TestBDExportRequest.is_mapped_to_parameters" />
+        <item itemvalue="JUnit.TestBDExportTypeFilter.has_valid_query_string_with_and_operator" />
+        <item itemvalue="JUnit.TestBDExportTypeFilter" />
       </list>
     </recent_temporary>
   </component>
@@ -94,7 +151,8 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1697625090681</updated>
-      <workItem from="1697625091802" duration="6991000" />
+      <workItem from="1697625091802" duration="11224000" />
+      <workItem from="1697713988351" duration="12616000" />
     </task>
     <task id="LOCAL-00001" summary="Reconfigure project as a maven module.">
       <created>1697625379782</created>
@@ -135,11 +193,6 @@
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/ExportClient.java</url>
-          <line>29</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>jar://$MAVEN_REPOSITORY$/ca/uhn/hapi/fhir/hapi-fhir-base/6.8.0/hapi-fhir-base-6.8.0-sources.jar!/ca/uhn/fhir/rest/server/exceptions/InternalErrorException.java</url>
           <line>56</line>
