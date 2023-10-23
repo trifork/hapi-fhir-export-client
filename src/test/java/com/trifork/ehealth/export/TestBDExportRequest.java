@@ -9,11 +9,37 @@ import org.hl7.fhir.r4.model.Parameters;
 import org.hl7.fhir.r4.model.ResourceType;
 import org.junit.jupiter.api.Test;
 
+import java.net.URI;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestBDExportRequest {
+    public static final String baseUrl = "http://localhost:8080/fhir/";
+    public static final URI baseUri = URI.create(baseUrl);
+
+    @Test
+    void patient_export_request_type() {
+        BDExportRequest request = BDExportRequest.createPatientExportRequest(baseUri);
+
+        assertEquals(baseUrl + "Patient/$export", request.getUri().toString());
+    }
+
+    @Test
+    void group_of_patients_export_request_type() {
+        BDExportRequest request = BDExportRequest.createGroupExportRequest(baseUri, 1337);
+
+        assertEquals(baseUrl + "Group/1337/$export", request.getUri().toString());
+    }
+
+    @Test
+    void system_export_request_type() {
+        BDExportRequest request = BDExportRequest.createSystemExportRequest(baseUri);
+
+        assertEquals(baseUrl + "$export", request.getUri().toString());
+    }
+
+
     @Test
     void is_mapped_to_parameters() {
         BDExportTypeFilter typeFilter1 = new BDExportTypeFilter(
@@ -28,7 +54,7 @@ public class TestBDExportRequest {
         );
 
         Date date_2023_10_20 = new Date(1697799741000L);
-        Parameters parameters = new BDExportRequest()
+        Parameters parameters = BDExportRequest.createSystemExportRequest(baseUri)
                 .setOutputFormat(Constants.CT_APP_NDJSON)
                 .setSince(new InstantType(date_2023_10_20, TemporalPrecisionEnum.DAY))
                 .addType(ResourceType.Condition)

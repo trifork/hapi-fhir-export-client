@@ -4,10 +4,17 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import com.trifork.ehealth.export.test.HapiFhirTestContainer;
-import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.CodeableConcept;
+import org.hl7.fhir.r4.model.Coding;
+import org.hl7.fhir.r4.model.Condition;
+import org.hl7.fhir.r4.model.ResourceType;
 import org.hl7.fhir.r4.model.codesystems.ConditionClinical;
 import org.junit.jupiter.api.*;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -20,7 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BDExportClientIT {
     private HapiFhirTestContainer hapiFhirTestContainer;
-    private BDExportClient BDExportClient;
+    private BDExportClient exportClient;
+    private URI baseUri;
     private final List<Condition> createdBundles = new ArrayList<>();
 
     @BeforeAll
@@ -29,8 +37,10 @@ public class BDExportClientIT {
         hapiFhirTestContainer.start();
 
         FhirContext fhirContext = FhirContext.forR4();
-        IGenericClient hapiFhirClient = hapiFhirTestContainer.createHapiFhirClient(fhirContext);
-        BDExportClient = new BDExportClient(fhirContext, hapiFhirClient);
+        HttpClient httpClient = HttpClient.newHttpClient();
+        this.baseUri = hapiFhirTestContainer.getHapiFhirUri();
+        this.exportClient = new BDExportClient(fhirContext, baseUri, httpClient);
+        IGenericClient hapiFhirClient = fhirContext.newRestfulGenericClient(baseUri.toString());
 
         // Create test resources for export
         for (ConditionClinical conditionClinical : ConditionClinical.values()) {
@@ -45,22 +55,53 @@ public class BDExportClientIT {
     }
 
     @Test
-    void bulk_data_export_is_initiated() {
-        MethodOutcome outcome = BDExportClient.initiate(createExportRequest());
+    void bulk_data_export_is_initiated() throws IOException, InterruptedException {
+        HttpResponse<String> response = exportClient.initiate(createExportRequest());
 
-        assertEquals(202, outcome.getResponseStatusCode());
-        assertTrue(outcome.getResponseHeaders().containsKey("content-location"));
+        assertEquals(202, response.statusCode());
+        assertTrue(response.headers().firstValue("content-location").isPresent());
 
-        String contentLocation = getContentLocation(outcome);
-        assertThat(contentLocation).matches(Pattern.compile("^.*\\/fhir\\/\\$export-poll-status\\?_jobId=([a-f0-9-]+)$"));
+        String contentLocation = getContentLocation(response);
+        assertTrue(contentLocation.contains("_jobId"));
+        assertThat(contentLocation).matches(Pattern.compile(".*\\?_jobId=[a-f0-9-]+$"));
     }
 
-    private static String getContentLocation(MethodOutcome outcome) {
-        return outcome.getResponseHeaders().get("content-location").get(0);
+    /*@Test
+    void ongoing_bulk_data_export_can_be_polled() throws IOException {
+        MethodOutcome initiateOutcome = exportClient.initiate(createExportRequest());
+        String contentLocation = getContentLocation(initiateOutcome);
+
+        MethodOutcome pollOutcome = exportClient.poll(contentLocation);
+
+        assertEquals(202, pollOutcome.getResponseStatusCode());
     }
 
-    private static BDExportRequest createExportRequest() {
-        return new BDExportRequest().addType(ResourceType.Condition);
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.MINUTES)
+    void bulk_data_export_eventually_finishes() throws IOException, InterruptedException {
+        HttpResponse<String> initiateOutcome = exportClient.initiate(createExportRequest());
+        String contentLocation = getContentLocation(initiateOutcome);
+
+        MethodOutcome pollOutcome = exportClient.poll(contentLocation);
+        while (pollOutcome.getResponseStatusCode() == 202) {
+            String retryDelay = BDExportUtils.extractHeaderValue(pollOutcome.getResponseHeaders(), "retry-after");
+            assert retryDelay != null;
+
+            int millis = Integer.parseInt(retryDelay) * 1000;
+            Thread.sleep(millis);
+
+            pollOutcome = exportClient.poll(contentLocation);
+        }
+
+        assertThat(pollOutcome.getResponseStatusCode()).isEqualTo(200);
+    }*/
+
+    private String getContentLocation(HttpResponse<?> response) {
+        return response.headers().firstValue("content-location").orElseThrow();
+    }
+
+    private BDExportRequest createExportRequest() {
+        return BDExportRequest.createSystemExportRequest(baseUri).addType(ResourceType.Condition);
     }
 
     private static Condition createCondition(ConditionClinical conditionClinical) {

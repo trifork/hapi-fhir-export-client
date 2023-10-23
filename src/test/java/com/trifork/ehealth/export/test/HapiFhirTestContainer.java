@@ -6,6 +6,8 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
+import java.net.URI;
+import java.net.http.HttpClient;
 import java.time.Duration;
 
 public class HapiFhirTestContainer {
@@ -21,25 +23,25 @@ public class HapiFhirTestContainer {
         this.hapiFhirTestContainer.start();
 
         // Give HAPI FHIR a chance to start up properly, so job definitions don't fail.
-        Thread.sleep(10000);
+        Thread.sleep(60000);
     }
 
     public void stop() {
         this.hapiFhirTestContainer.stop();
     }
 
-    public IGenericClient createHapiFhirClient(FhirContext fhirContext) {
+    public URI getHapiFhirUri() {
         if (!hapiFhirTestContainer.isRunning()) {
             throw new RuntimeException("Run the container first..");
         }
 
         String containerUrl = String.format(
-                "http://%s:%s/fhir",
+                "http://%s:%s/fhir/",
                 this.hapiFhirTestContainer.getHost(),
                 this.hapiFhirTestContainer.getMappedPort(HAPI_PORT)
         );
 
-        return fhirContext.newRestfulGenericClient(containerUrl);
+        return URI.create(containerUrl);
     }
 
     private static GenericContainer<?> createHapiFhirTestContainer() {
