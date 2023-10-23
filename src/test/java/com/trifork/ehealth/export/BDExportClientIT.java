@@ -3,6 +3,7 @@ package com.trifork.ehealth.export;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trifork.ehealth.export.test.HapiFhirTestContainer;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
@@ -14,9 +15,11 @@ import org.junit.jupiter.api.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -39,7 +42,7 @@ public class BDExportClientIT {
         FhirContext fhirContext = FhirContext.forR4();
         HttpClient httpClient = HttpClient.newHttpClient();
         this.baseUri = hapiFhirTestContainer.getHapiFhirUri();
-        this.exportClient = new BDExportClient(fhirContext, baseUri, httpClient);
+        this.exportClient = new BDExportClient(fhirContext, httpClient);
         IGenericClient hapiFhirClient = fhirContext.newRestfulGenericClient(baseUri.toString());
 
         // Create test resources for export
@@ -61,43 +64,56 @@ public class BDExportClientIT {
         assertEquals(202, response.statusCode());
         assertTrue(response.headers().firstValue("content-location").isPresent());
 
-        String contentLocation = getContentLocation(response);
-        assertTrue(contentLocation.contains("_jobId"));
-        assertThat(contentLocation).matches(Pattern.compile(".*\\?_jobId=[a-f0-9-]+$"));
+        URI contentLocation = getContentLocation(response);
+        assertTrue(contentLocation.toString().contains("_jobId"));
+        assertThat(contentLocation.toString()).matches(Pattern.compile(".*\\?_jobId=[a-f0-9-]+$"));
     }
 
-    /*@Test
-    void ongoing_bulk_data_export_can_be_polled() throws IOException {
-        MethodOutcome initiateOutcome = exportClient.initiate(createExportRequest());
-        String contentLocation = getContentLocation(initiateOutcome);
+    @Test
+    void ongoing_bulk_data_export_can_be_polled() throws IOException, InterruptedException {
+        HttpResponse<String> initiateResponse = exportClient.initiate(createExportRequest());
+        URI contentLocation = getContentLocation(initiateResponse);
 
-        MethodOutcome pollOutcome = exportClient.poll(contentLocation);
+        HttpResponse<String> pollResponse = exportClient.poll(contentLocation);
 
-        assertEquals(202, pollOutcome.getResponseStatusCode());
+        assertEquals(202, pollResponse.statusCode());
     }
 
     @Test
     @Timeout(value = 10, unit = TimeUnit.MINUTES)
     void bulk_data_export_eventually_finishes() throws IOException, InterruptedException {
-        HttpResponse<String> initiateOutcome = exportClient.initiate(createExportRequest());
-        String contentLocation = getContentLocation(initiateOutcome);
+        HttpResponse<String> initiateResponse = exportClient.initiate(createExportRequest());
+        URI contentLocation = getContentLocation(initiateResponse);
 
-        MethodOutcome pollOutcome = exportClient.poll(contentLocation);
-        while (pollOutcome.getResponseStatusCode() == 202) {
-            String retryDelay = BDExportUtils.extractHeaderValue(pollOutcome.getResponseHeaders(), "retry-after");
-            assert retryDelay != null;
+        HttpResponse<String> pollResponse = exportClient.poll(contentLocation);
+        HttpHeaders headers = pollResponse.headers();
+        assertTrue(headers.firstValue("retry-after").isPresent());
+        assertTrue(headers.firstValue("x-progress").isPresent());
 
-            int millis = Integer.parseInt(retryDelay) * 1000;
-            Thread.sleep(millis);
+        while (pollResponse.statusCode() == 202) {
+            Thread.sleep(60000);
 
-            pollOutcome = exportClient.poll(contentLocation);
+            pollResponse = exportClient.poll(contentLocation);
         }
 
-        assertThat(pollOutcome.getResponseStatusCode()).isEqualTo(200);
-    }*/
+        assertThat(pollResponse.statusCode()).isEqualTo(200);
 
-    private String getContentLocation(HttpResponse<?> response) {
-        return response.headers().firstValue("content-location").orElseThrow();
+        BDExportCompleteResponse response = new ObjectMapper().readValue(pollResponse.body(), BDExportCompleteResponse.class);
+
+        assertTrue(response.getError().isEmpty());
+        assertEquals(baseUri.toString() + "$export", response.getRequest());
+        assertTrue(response.isRequiresAccessToken());
+
+        List<BDExportCompleteResponse.OutputItem> output = response.getOutput();
+        assertThat(output.size()).isGreaterThan(0);
+
+        BDExportCompleteResponse.OutputItem outputItem = output.get(0);
+        assertEquals("Condition", outputItem.getType());
+        assertThat(outputItem.getUrl()).contains("/fhir/Binary/");
+    }
+
+    private URI getContentLocation(HttpResponse<?> response) {
+        return URI.create(response.headers().firstValue("content-location").orElseThrow());
     }
 
     private BDExportRequest createExportRequest() {

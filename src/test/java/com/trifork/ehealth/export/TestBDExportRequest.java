@@ -22,21 +22,21 @@ public class TestBDExportRequest {
     void patient_export_request_type() {
         BDExportRequest request = BDExportRequest.createPatientExportRequest(baseUri);
 
-        assertEquals(baseUrl + "Patient/$export", request.getUri().toString());
+        assertEquals(baseUrl + "Patient/$export", request.getBaseFhirUri().toString());
     }
 
     @Test
     void group_of_patients_export_request_type() {
         BDExportRequest request = BDExportRequest.createGroupExportRequest(baseUri, 1337);
 
-        assertEquals(baseUrl + "Group/1337/$export", request.getUri().toString());
+        assertEquals(baseUrl + "Group/1337/$export", request.getBaseFhirUri().toString());
     }
 
     @Test
     void system_export_request_type() {
         BDExportRequest request = BDExportRequest.createSystemExportRequest(baseUri);
 
-        assertEquals(baseUrl + "$export", request.getUri().toString());
+        assertEquals(baseUrl + "$export", request.getBaseFhirUri().toString());
     }
 
 

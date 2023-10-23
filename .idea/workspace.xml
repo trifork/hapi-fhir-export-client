@@ -5,13 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d7f517b1-c294-4da7-84dd-dd8794acb57a" name="Changes" comment="Reconfigure project as a maven module.">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportCompleteResponse.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportClient.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportRequest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/BDExportClientIT.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/BDExportClientIT.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/TestBDExportRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/TestBDExportRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/test/HapiFhirTestContainer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/test/HapiFhirTestContainer.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,7 +63,22 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="RunManager" selected="JUnit.BDExportClientIT.bulk_data_export_is_initiated">
+  <component name="RunManager" selected="JUnit.BDExportClientIT.bulk_data_export_eventually_finishes">
+    <configuration name="BDExportClientIT" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="hapi-fhir-export-client" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.trifork.ehealth.export.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.trifork.ehealth.export" />
+      <option name="MAIN_CLASS_NAME" value="com.trifork.ehealth.export.BDExportClientIT" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="BDExportClientIT.bulk_data_export_eventually_finishes" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="hapi-fhir-export-client" />
       <extension name="coverage">
@@ -128,29 +142,13 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="TestBDExportRequest.patient_export_request_type" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="hapi-fhir-export-client" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.trifork.ehealth.export.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.trifork.ehealth.export" />
-      <option name="MAIN_CLASS_NAME" value="com.trifork.ehealth.export.TestBDExportRequest" />
-      <option name="METHOD_NAME" value="patient_export_request_type" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.BDExportClientIT.bulk_data_export_eventually_finishes" />
+        <item itemvalue="JUnit.BDExportClientIT" />
         <item itemvalue="JUnit.BDExportClientIT.bulk_data_export_is_initiated" />
         <item itemvalue="JUnit.TestBDExportRequest" />
         <item itemvalue="JUnit.TestBDExportRequest.group_of_patients_export_request_type" />
-        <item itemvalue="JUnit.TestBDExportRequest.patient_export_request_type" />
-        <item itemvalue="JUnit.BDExportClientIT.bulk_data_export_eventually_finishes" />
       </list>
     </recent_temporary>
   </component>
@@ -165,7 +163,7 @@
       <workItem from="1697625091802" duration="11224000" />
       <workItem from="1697713988351" duration="17038000" />
       <workItem from="1697810422807" duration="182000" />
-      <workItem from="1697810786804" duration="17361000" />
+      <workItem from="1697810786804" duration="23208000" />
     </task>
     <task id="LOCAL-00001" summary="Reconfigure project as a maven module.">
       <created>1697625379782</created>
@@ -216,34 +214,7 @@
           <line>69</line>
           <option name="timeStamp" value="17" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportClient.java</url>
-          <line>77</line>
-          <option name="timeStamp" value="22" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportClient.java</url>
-          <line>55</line>
-          <option name="timeStamp" value="24" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportClient.java</url>
-          <line>45</line>
-          <option name="timeStamp" value="26" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportClient.java</url>
-          <line>48</line>
-          <option name="timeStamp" value="27" />
-        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
-    <watches-manager>
-      <configuration name="JUnit">
-        <watch expression="new URI(&quot;http://localhost:64230/fhir/&quot;).resolve(&quot;./$export&quot;)" language="JAVA" />
-        <watch expression="createExportRequest().uri" language="JAVA" />
-        <watch expression="exportRequest.getUri()" language="JAVA" />
-      </configuration>
-    </watches-manager>
   </component>
 </project>
