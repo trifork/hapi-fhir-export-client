@@ -92,7 +92,7 @@ public class HapiFhirExportClientIT {
         do {
             Thread.sleep(10000);
             pollResponse = exportClient.poll(contentLocation);
-        } while (!pollResponse.headers().firstValue("x-progress").get().contains("CANCELLED"));
+        } while (!BDExportUtils.isCancelled(pollResponse.headers()));
     }
 
     @Test

@@ -5,11 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d7f517b1-c294-4da7-84dd-dd8794acb57a" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportUtils.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/HapiFhirExportClient.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BulkDataExportFuture.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BulkDataExportFuture.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/BDExportClientIT.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/HapiFhirExportClientIT.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/TestBDExportClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/TestHapiFhirExportClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/HapiFhirExportClientIT.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/HapiFhirExportClientIT.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -164,7 +164,7 @@
       <workItem from="1697810422807" duration="182000" />
       <workItem from="1697810786804" duration="26563000" />
       <workItem from="1698133132101" duration="704000" />
-      <workItem from="1698133848659" duration="2344000" />
+      <workItem from="1698133848659" duration="3956000" />
     </task>
     <task id="LOCAL-00001" summary="Reconfigure project as a maven module.">
       <created>1697625379782</created>
