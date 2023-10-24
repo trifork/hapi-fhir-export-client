@@ -98,16 +98,16 @@ public class BDExportClientIT {
 
         assertThat(pollResponse.statusCode()).isEqualTo(200);
 
-        BDExportCompleteResponse response = new ObjectMapper().readValue(pollResponse.body(), BDExportCompleteResponse.class);
+        BDExportResult response = new ObjectMapper().readValue(pollResponse.body(), BDExportResult.class);
 
         assertTrue(response.getError().isEmpty());
         assertEquals(baseUri.toString() + "$export", response.getRequest());
         assertTrue(response.isRequiresAccessToken());
 
-        List<BDExportCompleteResponse.OutputItem> output = response.getOutput();
+        List<BDExportResult.OutputItem> output = response.getOutput();
         assertThat(output.size()).isGreaterThan(0);
 
-        BDExportCompleteResponse.OutputItem outputItem = output.get(0);
+        BDExportResult.OutputItem outputItem = output.get(0);
         assertEquals("Condition", outputItem.getType());
         assertThat(outputItem.getUrl()).contains("/fhir/Binary/");
     }

@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * See <a href="https://hl7.org/fhir/uv/bulkdata/export/index.html#request-flow">Complete Status Documentation</a>
  */
-public class BDExportCompleteResponse {
+public class BDExportResult {
     @JsonProperty("transactionTime")
     private String transactionTime;
 

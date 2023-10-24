@@ -37,7 +37,7 @@ public class BDExportClient {
         String body = fhirContext.newJsonParser().encodeResourceToString(parameters);
 
         HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(exportRequest.getBaseFhirUri())
+                .uri(exportRequest.getExportUri())
                 .POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8))
                 .header("Prefer", "respond-async")
                 .header("Content-Type", Constants.CT_JSON)

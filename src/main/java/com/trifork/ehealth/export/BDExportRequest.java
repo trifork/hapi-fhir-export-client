@@ -17,14 +17,14 @@ import java.util.stream.Collectors;
  * for <a href="https://hl7.org/fhir/uv/bulkdata/export/index.html#query-parameters">Bulk Data Export - Query Parameters</a>
  */
 public class BDExportRequest {
-    private final URI baseFhirUri;
+    private final URI exportUri;
     private String outputFormat = Constants.CT_FHIR_NDJSON;
     private InstantType since;
     private final List<ResourceType> types = new ArrayList<>();
     private final List<BDExportTypeFilter> typeFilters = new ArrayList<>();
 
-    BDExportRequest(URI baseFhirUri) {
-        this.baseFhirUri = baseFhirUri;
+    BDExportRequest(URI exportUri) {
+        this.exportUri = exportUri;
     }
 
     public BDExportRequest setOutputFormat(String outputFormat) {
@@ -95,7 +95,7 @@ public class BDExportRequest {
         return parameters;
     }
 
-    public URI getBaseFhirUri() {
-        return baseFhirUri;
+    public URI getExportUri() {
+        return exportUri;
     }
 }
