@@ -4,17 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d7f517b1-c294-4da7-84dd-dd8794acb57a" name="Changes" comment="Reconfigure project as a maven module.">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BulkDataExportFuture.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/TestBDExportClient.java" afterDir="false" />
+    <list default="true" id="d7f517b1-c294-4da7-84dd-dd8794acb57a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportCompleteResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportResult.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/BDExportClientIT.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/BDExportClientIT.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/TestBDExportRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/TestBDExportRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/HapiFhirExportClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BulkDataExportFuture.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BulkDataExportFuture.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/BDExportClientIT.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/HapiFhirExportClientIT.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/TestBDExportClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/TestHapiFhirExportClient.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,8 +62,8 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="RunManager" selected="JUnit.BDExportClientIT.bulk_data_export_eventually_finishes">
-    <configuration name="BDExportClientIT" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="JUnit.HapiFhirExportClientIT.ongoing_bulk_data_export_can_be_canceled">
+    <configuration name="HapiFhirExportClientIT" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="hapi-fhir-export-client" />
       <extension name="coverage">
         <pattern>
@@ -77,13 +72,13 @@
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="com.trifork.ehealth.export" />
-      <option name="MAIN_CLASS_NAME" value="com.trifork.ehealth.export.BDExportClientIT" />
+      <option name="MAIN_CLASS_NAME" value="com.trifork.ehealth.export.HapiFhirExportClientIT" />
       <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="BDExportClientIT.bulk_data_export_eventually_finishes" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="HapiFhirExportClientIT.bulk_data_export_eventually_finishes" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="hapi-fhir-export-client" />
       <extension name="coverage">
         <pattern>
@@ -92,14 +87,14 @@
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="com.trifork.ehealth.export" />
-      <option name="MAIN_CLASS_NAME" value="com.trifork.ehealth.export.BDExportClientIT" />
+      <option name="MAIN_CLASS_NAME" value="com.trifork.ehealth.export.HapiFhirExportClientIT" />
       <option name="METHOD_NAME" value="bulk_data_export_eventually_finishes" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="BDExportClientIT.bulk_data_export_is_initiated" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="HapiFhirExportClientIT.bulk_data_export_is_initiated" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="hapi-fhir-export-client" />
       <extension name="coverage">
         <pattern>
@@ -108,8 +103,24 @@
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="com.trifork.ehealth.export" />
-      <option name="MAIN_CLASS_NAME" value="com.trifork.ehealth.export.BDExportClientIT" />
+      <option name="MAIN_CLASS_NAME" value="com.trifork.ehealth.export.HapiFhirExportClientIT" />
       <option name="METHOD_NAME" value="bulk_data_export_is_initiated" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="HapiFhirExportClientIT.ongoing_bulk_data_export_can_be_canceled" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="hapi-fhir-export-client" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.trifork.ehealth.export.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.trifork.ehealth.export" />
+      <option name="MAIN_CLASS_NAME" value="com.trifork.ehealth.export.HapiFhirExportClientIT" />
+      <option name="METHOD_NAME" value="ongoing_bulk_data_export_can_be_canceled" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -130,29 +141,13 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="TestBDExportRequest.group_of_patients_export_request_type" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="hapi-fhir-export-client" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.trifork.ehealth.export.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.trifork.ehealth.export" />
-      <option name="MAIN_CLASS_NAME" value="com.trifork.ehealth.export.TestBDExportRequest" />
-      <option name="METHOD_NAME" value="group_of_patients_export_request_type" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.BDExportClientIT.bulk_data_export_eventually_finishes" />
-        <item itemvalue="JUnit.BDExportClientIT" />
-        <item itemvalue="JUnit.BDExportClientIT.bulk_data_export_is_initiated" />
+        <item itemvalue="JUnit.HapiFhirExportClientIT.ongoing_bulk_data_export_can_be_canceled" />
+        <item itemvalue="JUnit.HapiFhirExportClientIT.bulk_data_export_eventually_finishes" />
+        <item itemvalue="JUnit.HapiFhirExportClientIT" />
+        <item itemvalue="JUnit.HapiFhirExportClientIT.bulk_data_export_is_initiated" />
         <item itemvalue="JUnit.TestBDExportRequest" />
-        <item itemvalue="JUnit.TestBDExportRequest.group_of_patients_export_request_type" />
       </list>
     </recent_temporary>
   </component>
@@ -169,7 +164,7 @@
       <workItem from="1697810422807" duration="182000" />
       <workItem from="1697810786804" duration="26563000" />
       <workItem from="1698133132101" duration="704000" />
-      <workItem from="1698133848659" duration="379000" />
+      <workItem from="1698133848659" duration="2344000" />
     </task>
     <task id="LOCAL-00001" summary="Reconfigure project as a maven module.">
       <created>1697625379782</created>
@@ -185,7 +180,14 @@
       <option name="project" value="LOCAL" />
       <updated>1697628387843</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Begin create export output model, to handle success and error cases.">
+      <created>1698134301125</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1698134301125</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -205,7 +207,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Reconfigure project as a maven module." />
     <MESSAGE value="Expand test-setup with exportable Condition resources" />
-    <option name="LAST_COMMIT_MESSAGE" value="Expand test-setup with exportable Condition resources" />
+    <MESSAGE value="Begin create export output model, to handle success and error cases." />
+    <option name="LAST_COMMIT_MESSAGE" value="Begin create export output model, to handle success and error cases." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

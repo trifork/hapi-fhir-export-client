@@ -9,11 +9,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class BulkDataExportFuture implements Future<BDExportResponse> {
-    private final BDExportClient exportClient;
+    private final HapiFhirExportClient exportClient;
     private final BDExportRequest request;
     private URI pollingUri;
 
-    public BulkDataExportFuture(BDExportClient exportClient, BDExportRequest request) {
+    public BulkDataExportFuture(HapiFhirExportClient exportClient, BDExportRequest request) {
         this.exportClient = exportClient;
         this.request = request;
     }

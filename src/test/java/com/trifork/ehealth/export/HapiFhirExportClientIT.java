@@ -28,9 +28,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class BDExportClientIT {
+public class HapiFhirExportClientIT {
     private HapiFhirTestContainer hapiFhirTestContainer;
-    private BDExportClient exportClient;
+    private HapiFhirExportClient exportClient;
     private URI baseUri;
     private final List<Condition> createdBundles = new ArrayList<>();
 
@@ -42,7 +42,7 @@ public class BDExportClientIT {
         FhirContext fhirContext = FhirContext.forR4();
         HttpClient httpClient = HttpClient.newHttpClient();
         this.baseUri = hapiFhirTestContainer.getHapiFhirUri();
-        this.exportClient = new BDExportClient(fhirContext, httpClient);
+        this.exportClient = new HapiFhirExportClient(fhirContext, httpClient);
         IGenericClient hapiFhirClient = fhirContext.newRestfulGenericClient(baseUri.toString());
 
         // Create test resources for export
@@ -77,6 +77,22 @@ public class BDExportClientIT {
         HttpResponse<String> pollResponse = exportClient.poll(contentLocation);
 
         assertEquals(202, pollResponse.statusCode());
+    }
+
+    @Test
+    @Timeout(value = 2, unit = TimeUnit.MINUTES)
+    void ongoing_bulk_data_export_can_be_cancelled() throws IOException, InterruptedException {
+        HttpResponse<String> initiateResponse = exportClient.initiate(createExportRequest());
+        URI contentLocation = getContentLocation(initiateResponse);
+
+        HttpResponse<String> cancelResponse = exportClient.cancel(contentLocation);
+        assertEquals(202, cancelResponse.statusCode());
+
+        HttpResponse<String> pollResponse;
+        do {
+            Thread.sleep(10000);
+            pollResponse = exportClient.poll(contentLocation);
+        } while (!pollResponse.headers().firstValue("x-progress").get().contains("CANCELLED"));
     }
 
     @Test

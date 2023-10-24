@@ -15,7 +15,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-public class TestBDExportClient {
+public class TestHapiFhirExportClient {
     private HttpClient httpClient;
 
     @BeforeEach

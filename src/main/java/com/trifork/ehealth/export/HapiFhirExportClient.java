@@ -20,11 +20,11 @@ import java.nio.charset.StandardCharsets;
  * page for more information on how to use this feature.
  * </p>
  */
-public class BDExportClient {
+public class HapiFhirExportClient {
     private final FhirContext fhirContext;
     private final HttpClient httpClient;
 
-    public BDExportClient(FhirContext fhirContext, HttpClient httpClient) {
+    public HapiFhirExportClient(FhirContext fhirContext, HttpClient httpClient) {
         this.fhirContext = fhirContext;
         this.httpClient = httpClient;
     }
@@ -32,7 +32,7 @@ public class BDExportClient {
     /**
      * Initiate an async bulk data export
      */
-    protected HttpResponse<String> initiate(BDExportRequest exportRequest) throws IOException, InterruptedException {
+    public HttpResponse<String> initiate(BDExportRequest exportRequest) throws IOException, InterruptedException {
         Parameters parameters = exportRequest.toParameters(fhirContext);
         String body = fhirContext.newJsonParser().encodeResourceToString(parameters);
 
@@ -47,10 +47,22 @@ public class BDExportClient {
     }
 
     /**
-     * Poll an initiated Bulk Data Export.
+     * Poll an initiated Bulk Data Export, given a polling location.
      */
-    protected HttpResponse<String> poll(URI contentLocation) throws IOException, InterruptedException {
+    public HttpResponse<String> poll(URI contentLocation) throws IOException, InterruptedException {
         HttpRequest httpRequest = HttpRequest.newBuilder()
+                .uri(contentLocation)
+                .build();
+
+        return httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    }
+
+    /**
+     * Cancel a Bulk Data Export, using the polling location.
+     */
+    public HttpResponse<String> cancel(URI contentLocation) throws IOException, InterruptedException {
+        HttpRequest httpRequest = HttpRequest.newBuilder()
+                .DELETE()
                 .uri(contentLocation)
                 .build();
 
