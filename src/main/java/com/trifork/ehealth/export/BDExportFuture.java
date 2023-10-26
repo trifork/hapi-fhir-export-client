@@ -4,6 +4,8 @@ import ca.uhn.fhir.context.FhirContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hl7.fhir.r4.model.OperationOutcome;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -18,6 +20,7 @@ import java.util.concurrent.TimeoutException;
 import static ca.uhn.fhir.rest.api.Constants.STATUS_HTTP_202_ACCEPTED;
 
 public class BDExportFuture implements Future<BDExportResponse> {
+    private static final Logger logger = LoggerFactory.getLogger(BDExportFuture.class);
     private static final int STATUS_HTTP_429_TOO_MANY_REQUESTS = 429;
 
     private final FhirContext fhirContext;
@@ -55,9 +58,9 @@ public class BDExportFuture implements Future<BDExportResponse> {
     @Override
     public boolean isCancelled() {
         try {
-            /**
-             * HAPI FHIR takes a while to cancel ongoing export jobs,
-             * so it still makes sense to use cached results here.
+            /*
+              HAPI FHIR takes a while to cancel ongoing export jobs,
+              so it still makes sense to use cached results here.
              */
             HttpResponse<String> pollResponse = doCachedPolling();
             return BDExportUtils.isCancelled(pollResponse.headers());
@@ -70,8 +73,8 @@ public class BDExportFuture implements Future<BDExportResponse> {
     public boolean isDone() {
         try {
             HttpResponse<String> pollResponse = doCachedPolling();
-            return pollResponse.statusCode() != STATUS_HTTP_202_ACCEPTED
-                    && pollResponse.statusCode() != STATUS_HTTP_429_TOO_MANY_REQUESTS;
+            return isCancelled() || (pollResponse.statusCode() != STATUS_HTTP_202_ACCEPTED
+                    && pollResponse.statusCode() != STATUS_HTTP_429_TOO_MANY_REQUESTS);
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -82,7 +85,7 @@ public class BDExportFuture implements Future<BDExportResponse> {
         try {
             Optional<BDExportResponse> exportResponseOpt = awaitExportResponse();
             while (exportResponseOpt.isEmpty()) {
-                Thread.sleep(10000);
+                Thread.sleep(1000);
                 exportResponseOpt = awaitExportResponse();
             }
 
@@ -106,7 +109,7 @@ public class BDExportFuture implements Future<BDExportResponse> {
                     throw new TimeoutException("Export operation timed out");
                 }
 
-                Thread.sleep(10000);
+                Thread.sleep(1000);
                 exportResponseOpt = awaitExportResponse();
             }
 
@@ -153,6 +156,9 @@ public class BDExportFuture implements Future<BDExportResponse> {
     protected HttpResponse<String> doPolling() throws IOException, InterruptedException {
         this.cachedPollResponse = exportClient.poll(pollingUri);
         this.nextPollTime = BDExportUtils.evaluateNextAllowedPollTime(cachedPollResponse.headers());
+
+        Optional<String> progress = BDExportUtils.extractProgress(cachedPollResponse.headers());
+        progress.ifPresent(s -> logger.info("'Bulk Data Export' status: '" + s + "'"));
 
         return cachedPollResponse;
     }

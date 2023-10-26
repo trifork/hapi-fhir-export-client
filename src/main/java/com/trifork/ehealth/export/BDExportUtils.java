@@ -13,6 +13,10 @@ public class BDExportUtils {
         return opt.isPresent() && opt.get().contains("CANCELLED");
     }
 
+    public static Optional<String> extractProgress(HttpHeaders headers) {
+        return headers.firstValue("x-progress");
+    }
+
     public static Instant evaluateNextAllowedPollTime(HttpHeaders headers) {
         Optional<String> opt = headers.firstValue("retry-after");
         if (opt.isPresent()) {

@@ -3,6 +3,8 @@ package com.trifork.ehealth.export;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.api.Constants;
 import org.hl7.fhir.r4.model.Parameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -21,6 +23,8 @@ import java.nio.charset.StandardCharsets;
  * </p>
  */
 class HapiFhirExportClient {
+    private final Logger logger = LoggerFactory.getLogger(HapiFhirExportClient.class);
+
     private final FhirContext fhirContext;
     private final HttpClient httpClient;
 
@@ -35,6 +39,8 @@ class HapiFhirExportClient {
     public HttpResponse<String> initiate(BDExportRequest exportRequest) throws IOException, InterruptedException {
         Parameters parameters = exportRequest.toParameters(fhirContext);
         String body = fhirContext.newJsonParser().encodeResourceToString(parameters);
+
+        logger.info("Initiating a 'Bulk Data Export'");
 
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(exportRequest.getExportUri())
@@ -54,6 +60,8 @@ class HapiFhirExportClient {
                 .uri(contentLocation)
                 .build();
 
+        logger.info("Polling status on a 'Bulk Data Export'");
+
         return httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
     }
 
@@ -65,6 +73,8 @@ class HapiFhirExportClient {
                 .DELETE()
                 .uri(contentLocation)
                 .build();
+
+        logger.info("Cancelling a 'Bulk Data Export'");
 
         return httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
     }

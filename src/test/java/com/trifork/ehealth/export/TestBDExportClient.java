@@ -22,10 +22,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static javolution.testing.TestContext.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
@@ -120,11 +121,32 @@ public class TestBDExportClient {
     }
 
     @Test
-    void export_has_been_cancelled() {
+    void export_has_been_cancelled() throws IOException, InterruptedException {
         configureExportInitiation();
         configurePollInProgress();
 
+        Future<BDExportResponse> future = exportClient.bulkDataExport(new BDExportRequest(exportUri));
 
+        assertFalse(future.isDone());
+        assertFalse(future.isCancelled());
+
+        configurePollHasBeenCancelled();
+
+        assertTrue(future.isCancelled());
+        assertTrue(future.isDone());
+    }
+
+    @Test
+    void export_times_out() throws IOException, InterruptedException, ExecutionException {
+        configureExportInitiation();
+        configurePollInProgress();
+
+        Future<BDExportResponse> future = exportClient.bulkDataExport(new BDExportRequest(exportUri));
+
+        try {
+            future.get(1, TimeUnit.SECONDS);
+            fail("Expected timeout exception");
+        } catch (TimeoutException e) {}
     }
 
     private void configureExportInitiation() {

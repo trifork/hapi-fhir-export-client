@@ -1,7 +1,6 @@
 package com.trifork.ehealth.export;
 
 import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trifork.ehealth.export.test.HapiFhirTestContainer;
@@ -17,7 +16,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -33,7 +31,6 @@ public class HapiFhirExportClientIT {
     private HapiFhirTestContainer hapiFhirTestContainer;
     private HapiFhirExportClient exportClient;
     private URI baseUri;
-    private final List<Condition> createdBundles = new ArrayList<>();
 
     @BeforeAll
     void setup() throws InterruptedException {
@@ -48,8 +45,7 @@ public class HapiFhirExportClientIT {
 
         // Create test resources for export
         for (ConditionClinical conditionClinical : ConditionClinical.values()) {
-            MethodOutcome outcome = hapiFhirClient.create().resource(createCondition(conditionClinical)).execute();
-            createdBundles.add((Condition) outcome.getResource());
+            hapiFhirClient.create().resource(createCondition(conditionClinical)).execute();
         }
     }
 
@@ -60,7 +56,7 @@ public class HapiFhirExportClientIT {
 
     @Test
     void bulk_data_export_is_initiated() throws IOException, InterruptedException {
-        HttpResponse<String> response = exportClient.initiate(createExportRequest());
+        HttpResponse<String> response = exportClient.initiate(createExportRequest(baseUri));
 
         assertEquals(202, response.statusCode());
         assertTrue(response.headers().firstValue("content-location").isPresent());
@@ -72,7 +68,7 @@ public class HapiFhirExportClientIT {
 
     @Test
     void ongoing_bulk_data_export_can_be_polled() throws IOException, InterruptedException {
-        HttpResponse<String> initiateResponse = exportClient.initiate(createExportRequest());
+        HttpResponse<String> initiateResponse = exportClient.initiate(createExportRequest(baseUri));
         URI contentLocation = extractContentLocation(initiateResponse);
 
         HttpResponse<String> pollResponse = exportClient.poll(contentLocation);
@@ -83,7 +79,7 @@ public class HapiFhirExportClientIT {
     @Test
     @Timeout(value = 2, unit = TimeUnit.MINUTES)
     void ongoing_bulk_data_export_can_be_cancelled() throws IOException, InterruptedException {
-        HttpResponse<String> initiateResponse = exportClient.initiate(createExportRequest());
+        HttpResponse<String> initiateResponse = exportClient.initiate(createExportRequest(baseUri));
         URI contentLocation = extractContentLocation(initiateResponse);
 
         HttpResponse<String> cancelResponse = exportClient.cancel(contentLocation);
@@ -99,7 +95,7 @@ public class HapiFhirExportClientIT {
     @Test
     @Timeout(value = 10, unit = TimeUnit.MINUTES)
     void bulk_data_export_eventually_finishes() throws IOException, InterruptedException {
-        HttpResponse<String> initiateResponse = exportClient.initiate(createExportRequest());
+        HttpResponse<String> initiateResponse = exportClient.initiate(createExportRequest(baseUri));
         URI contentLocation = extractContentLocation(initiateResponse);
 
         HttpResponse<String> pollResponse = exportClient.poll(contentLocation);
@@ -129,11 +125,11 @@ public class HapiFhirExportClientIT {
         assertThat(outputItem.getUrl()).contains("/fhir/Binary/");
     }
 
-    private BDExportRequest createExportRequest() {
+    public static BDExportRequest createExportRequest(URI baseUri) {
         return BDExportRequest.createSystemExportRequest(baseUri).addType(ResourceType.Condition);
     }
 
-    private static Condition createCondition(ConditionClinical conditionClinical) {
+    public static Condition createCondition(ConditionClinical conditionClinical) {
         return new Condition()
                 .setClinicalStatus(
                         new CodeableConcept(
