@@ -64,7 +64,7 @@ public class TestBDExportClient {
         doReturn(fhirContext.newJsonParser().encodeResourceToString(operationOutcome)).when(initateResponse).body();
         doReturn(Constants.STATUS_HTTP_422_UNPROCESSABLE_ENTITY).when(initateResponse).statusCode();
 
-        Future<BDExportResponse> future = exportClient.bulkDataExport(new BDExportRequest(exportUri));
+        Future<BDExportResponse> future = exportClient.startExport(new BDExportRequest(exportUri));
 
         assertTrue(future.isDone());
         BDExportResponse bdExportResponse = future.get();
@@ -81,7 +81,7 @@ public class TestBDExportClient {
         configureExportInitiation();
         configurePollInProgress();
 
-        Future<BDExportResponse> future = exportClient.bulkDataExport(new BDExportRequest(exportUri));
+        Future<BDExportResponse> future = exportClient.startExport(new BDExportRequest(exportUri));
 
         assertFalse(future.isDone());
         assertFalse(future.isCancelled());
@@ -95,7 +95,7 @@ public class TestBDExportClient {
         configureExportInitiation();
         configurePollInProgress();
 
-        Future<BDExportResponse> future = exportClient.bulkDataExport(new BDExportRequest(exportUri));
+        Future<BDExportResponse> future = exportClient.startExport(new BDExportRequest(exportUri));
 
         assertFalse(future.isDone());
         assertFalse(future.isCancelled());
@@ -125,7 +125,7 @@ public class TestBDExportClient {
         configureExportInitiation();
         configurePollInProgress();
 
-        Future<BDExportResponse> future = exportClient.bulkDataExport(new BDExportRequest(exportUri));
+        Future<BDExportResponse> future = exportClient.startExport(new BDExportRequest(exportUri));
 
         assertFalse(future.isDone());
         assertFalse(future.isCancelled());
@@ -141,7 +141,7 @@ public class TestBDExportClient {
         configureExportInitiation();
         configurePollInProgress();
 
-        Future<BDExportResponse> future = exportClient.bulkDataExport(new BDExportRequest(exportUri));
+        Future<BDExportResponse> future = exportClient.startExport(new BDExportRequest(exportUri));
 
         try {
             future.get(1, TimeUnit.SECONDS);

@@ -25,7 +25,16 @@ public class BDExportClient {
         this.exportClient = new HapiFhirExportClient(fhirContext, httpClient);
     }
 
-    public Future<BDExportResponse> bulkDataExport(BDExportRequest request) throws IOException, InterruptedException {
+    /**
+     * Begin a Bulk Data Export
+     *
+     * @param request - Configuration for the export
+     * @return a future
+     *
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public Future<BDExportResponse> startExport(BDExportRequest request) throws IOException, InterruptedException {
         HttpResponse<String> response = exportClient.initiate(request);
         int statusCode = response.statusCode();
 
@@ -42,6 +51,17 @@ public class BDExportClient {
         } else {
             throw new RuntimeException("Failed to initiate export, server responded with: " + statusCode);
         }
+    }
+
+    /**
+     * Resume a Bulk Data Export, given a polling status URI.
+     *
+     * @param contentLocation - URI of the status for the ongoing export
+     *
+     * @return a future
+     */
+    public Future<BDExportResponse> continueExport(URI contentLocation) {
+        return new BDExportFuture(fhirContext, exportClient, contentLocation);
     }
 
     public static class ErrorFuture implements Future<BDExportResponse> {

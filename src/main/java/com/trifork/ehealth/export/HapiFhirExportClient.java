@@ -60,7 +60,7 @@ class HapiFhirExportClient {
                 .uri(contentLocation)
                 .build();
 
-        logger.info("Polling status on a 'Bulk Data Export'");
+        logger.info("Polling status at '" + contentLocation + "'");
 
         return httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
     }
@@ -74,7 +74,7 @@ class HapiFhirExportClient {
                 .uri(contentLocation)
                 .build();
 
-        logger.info("Cancelling a 'Bulk Data Export'");
+        logger.info("Cancelling export '" + contentLocation +"'");
 
         return httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
     }

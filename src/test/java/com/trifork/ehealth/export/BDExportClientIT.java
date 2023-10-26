@@ -51,7 +51,7 @@ public class BDExportClientIT {
     @Test
     @Timeout(value = 10, unit = TimeUnit.MINUTES)
     void bulk_data_export_is_successful() throws IOException, InterruptedException, ExecutionException {
-        Future<BDExportResponse> future = exportClient.bulkDataExport(createExportRequest(baseUri));
+        Future<BDExportResponse> future = exportClient.startExport(createExportRequest(baseUri));
 
         assertFalse(future.isCancelled());
         assertFalse(future.isDone());
