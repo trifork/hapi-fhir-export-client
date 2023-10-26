@@ -1,70 +1,159 @@
 package com.trifork.ehealth.export;
 
+import ca.uhn.fhir.context.FhirContext;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hl7.fhir.r4.model.OperationOutcome;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpResponse;
+import java.time.Instant;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static ca.uhn.fhir.rest.api.Constants.STATUS_HTTP_202_ACCEPTED;
+
 public class BDExportFuture implements Future<BDExportResponse> {
+    private static final int STATUS_HTTP_429_TOO_MANY_REQUESTS = 429;
+
+    private final FhirContext fhirContext;
     private final HapiFhirExportClient exportClient;
-    private final BDExportRequest request;
+    private final URI pollingUri;
 
-    private URI pollingUri;
-    private boolean running;
+    // Respect the retry-after, and cache the result, so we don't get rate limited in HAPI FHIR.
+    private HttpResponse<String> cachedPollResponse;
+    private Instant nextPollTime = Instant.now();
 
-    public BDExportFuture(HapiFhirExportClient exportClient, BDExportRequest request) {
+    BDExportFuture(FhirContext fhirContext, HapiFhirExportClient exportClient, URI pollingUri) {
+        this.fhirContext = fhirContext;
         this.exportClient = exportClient;
-        this.request = request;
+        this.pollingUri = pollingUri;
     }
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
+        try {
+            if (!isDone()) {
+                HttpResponse<String> cancelResponse = exportClient.cancel(pollingUri);
+
+                if (cancelResponse.statusCode() == STATUS_HTTP_202_ACCEPTED) {
+                    Thread.currentThread().interrupt();
+                    return true;
+                }
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException("Could not cancel export", e);
+        }
+
         return false;
     }
 
     @Override
     public boolean isCancelled() {
-        if (pollingUri != null) {
-            try {
-                HttpResponse<String> pollResponse = exportClient.poll(pollingUri);
-                return BDExportUtils.isCancelled(pollResponse.headers());
-            } catch (IOException | InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+        try {
+            /**
+             * HAPI FHIR takes a while to cancel ongoing export jobs,
+             * so it still makes sense to use cached results here.
+             */
+            HttpResponse<String> pollResponse = doCachedPolling();
+            return BDExportUtils.isCancelled(pollResponse.headers());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
         }
-
-        return false;
     }
 
     @Override
     public boolean isDone() {
-        if (pollingUri != null) {
-
+        try {
+            HttpResponse<String> pollResponse = doCachedPolling();
+            return pollResponse.statusCode() != STATUS_HTTP_202_ACCEPTED
+                    && pollResponse.statusCode() != STATUS_HTTP_429_TOO_MANY_REQUESTS;
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
         }
-
-        return false;
     }
 
     @Override
     public BDExportResponse get() throws InterruptedException, ExecutionException {
-        return null;
+        try {
+            Optional<BDExportResponse> exportResponseOpt = awaitExportResponse();
+            while (exportResponseOpt.isEmpty()) {
+                Thread.sleep(10000);
+                exportResponseOpt = awaitExportResponse();
+            }
+
+            return exportResponseOpt.get();
+        } catch (IOException e) {
+            throw new ExecutionException("Failed to fetch 'Bulk Data Export' response", e);
+        }
     }
 
     @Override
     public BDExportResponse get(long timeout, @NotNull TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-        return null;
+        long timeoutMillis = unit.toMillis(timeout);
+        long startTime = System.currentTimeMillis();
+
+        try {
+            Optional<BDExportResponse> exportResponseOpt = awaitExportResponse();
+
+            while (exportResponseOpt.isEmpty()) {
+                if (System.currentTimeMillis() - startTime > timeoutMillis) {
+                    // Timeout exceeded
+                    throw new TimeoutException("Export operation timed out");
+                }
+
+                Thread.sleep(10000);
+                exportResponseOpt = awaitExportResponse();
+            }
+
+            return exportResponseOpt.get();
+        } catch (IOException e) {
+            throw new ExecutionException("Failed to fetch 'Bulk Data Export' response", e);
+        }
     }
 
-    protected URI getPollingUri() {
-        return pollingUri;
+    protected Optional<BDExportResponse> awaitExportResponse() throws IOException, InterruptedException {
+        if (isDone()) {
+            HttpResponse<String> response = doCachedPolling();
+            int statusCode = response.statusCode();
+
+            if (statusCode == 200) {
+                BDExportCompleteResult result = new ObjectMapper().readValue(response.body(), BDExportCompleteResult.class);
+
+                return Optional.of(
+                        new BDExportResponse(statusCode, result, null)
+                );
+            } else if (statusCode >= 400 && statusCode <= 599) {
+                OperationOutcome operationOutcome = fhirContext.newJsonParser()
+                        .parseResource(OperationOutcome.class, response.body());
+
+                return Optional.of(
+                        new BDExportResponse(statusCode, null, operationOutcome)
+                );
+            }
+        }
+
+        return Optional.empty();
     }
 
-    protected boolean isRunning() {
-        return running;
+    protected HttpResponse<String> doCachedPolling() throws IOException, InterruptedException {
+        boolean pastRetryAfterDuration = Instant.now().isAfter(nextPollTime);
+
+        if (cachedPollResponse == null || pastRetryAfterDuration) {
+            return doPolling();
+        }
+
+        return cachedPollResponse;
+    }
+
+    protected HttpResponse<String> doPolling() throws IOException, InterruptedException {
+        this.cachedPollResponse = exportClient.poll(pollingUri);
+        this.nextPollTime = BDExportUtils.evaluateNextAllowedPollTime(cachedPollResponse.headers());
+
+        return cachedPollResponse;
     }
 }

@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets;
  * page for more information on how to use this feature.
  * </p>
  */
-public class HapiFhirExportClient {
+class HapiFhirExportClient {
     private final FhirContext fhirContext;
     private final HttpClient httpClient;
 

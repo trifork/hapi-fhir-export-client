@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import static com.trifork.ehealth.export.BDExportUtils.extractContentLocation;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -64,7 +65,7 @@ public class HapiFhirExportClientIT {
         assertEquals(202, response.statusCode());
         assertTrue(response.headers().firstValue("content-location").isPresent());
 
-        URI contentLocation = getContentLocation(response);
+        URI contentLocation = extractContentLocation(response);
         assertTrue(contentLocation.toString().contains("_jobId"));
         assertThat(contentLocation.toString()).matches(Pattern.compile(".*\\?_jobId=[a-f0-9-]+$"));
     }
@@ -72,7 +73,7 @@ public class HapiFhirExportClientIT {
     @Test
     void ongoing_bulk_data_export_can_be_polled() throws IOException, InterruptedException {
         HttpResponse<String> initiateResponse = exportClient.initiate(createExportRequest());
-        URI contentLocation = getContentLocation(initiateResponse);
+        URI contentLocation = extractContentLocation(initiateResponse);
 
         HttpResponse<String> pollResponse = exportClient.poll(contentLocation);
 
@@ -83,7 +84,7 @@ public class HapiFhirExportClientIT {
     @Timeout(value = 2, unit = TimeUnit.MINUTES)
     void ongoing_bulk_data_export_can_be_cancelled() throws IOException, InterruptedException {
         HttpResponse<String> initiateResponse = exportClient.initiate(createExportRequest());
-        URI contentLocation = getContentLocation(initiateResponse);
+        URI contentLocation = extractContentLocation(initiateResponse);
 
         HttpResponse<String> cancelResponse = exportClient.cancel(contentLocation);
         assertEquals(202, cancelResponse.statusCode());
@@ -99,7 +100,7 @@ public class HapiFhirExportClientIT {
     @Timeout(value = 10, unit = TimeUnit.MINUTES)
     void bulk_data_export_eventually_finishes() throws IOException, InterruptedException {
         HttpResponse<String> initiateResponse = exportClient.initiate(createExportRequest());
-        URI contentLocation = getContentLocation(initiateResponse);
+        URI contentLocation = extractContentLocation(initiateResponse);
 
         HttpResponse<String> pollResponse = exportClient.poll(contentLocation);
         HttpHeaders headers = pollResponse.headers();
@@ -114,22 +115,18 @@ public class HapiFhirExportClientIT {
 
         assertThat(pollResponse.statusCode()).isEqualTo(200);
 
-        BDExportResult response = new ObjectMapper().readValue(pollResponse.body(), BDExportResult.class);
+        BDExportCompleteResult response = new ObjectMapper().readValue(pollResponse.body(), BDExportCompleteResult.class);
 
         assertTrue(response.getError().isEmpty());
         assertEquals(baseUri.toString() + "$export", response.getRequest());
         assertTrue(response.isRequiresAccessToken());
 
-        List<BDExportResult.OutputItem> output = response.getOutput();
+        List<BDExportCompleteResult.OutputItem> output = response.getOutput();
         assertThat(output.size()).isGreaterThan(0);
 
-        BDExportResult.OutputItem outputItem = output.get(0);
+        BDExportCompleteResult.OutputItem outputItem = output.get(0);
         assertEquals("Condition", outputItem.getType());
         assertThat(outputItem.getUrl()).contains("/fhir/Binary/");
-    }
-
-    private URI getContentLocation(HttpResponse<?> response) {
-        return URI.create(response.headers().firstValue("content-location").orElseThrow());
     }
 
     private BDExportRequest createExportRequest() {

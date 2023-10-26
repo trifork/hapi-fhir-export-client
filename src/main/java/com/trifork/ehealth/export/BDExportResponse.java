@@ -6,10 +6,10 @@ import java.util.Optional;
 
 public class BDExportResponse {
     private final int statusCode;
-    private final BDExportResult result;
+    private final BDExportCompleteResult result;
     private final OperationOutcome error;
 
-    public BDExportResponse(int statusCode, BDExportResult result, OperationOutcome error) {
+    BDExportResponse(int statusCode, BDExportCompleteResult result, OperationOutcome error) {
         this.statusCode = statusCode;
         this.result = result;
         this.error = error;
@@ -19,7 +19,7 @@ public class BDExportResponse {
         return statusCode;
     }
 
-    public Optional<BDExportResult> getResult() {
+    public Optional<BDExportCompleteResult> getResult() {
         return Optional.ofNullable(result);
     }
 
