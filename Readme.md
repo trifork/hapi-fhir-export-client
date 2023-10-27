@@ -3,6 +3,19 @@
 This project aims at simplifying the Bulk Data Export process in HAPI FHIR, 
 and which is documented [here](https://hl7.org/fhir/uv/bulkdata/export/index.html)
 
+## Maven dependency
+
+If you have access to the trifork nexus3 repository manager, you can get the dependency in maven,
+by adding the following:
+
+```xml
+<dependency>
+    <groupId>com.trifork.ehealth</groupId>
+    <artifactId>hapi-fhir-export-client</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
 ## Configuring the client
 
 To create a client, we need a FhirContext which can contain custom configured parsers.
