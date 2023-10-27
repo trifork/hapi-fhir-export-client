@@ -6,7 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="d7f517b1-c294-4da7-84dd-dd8794acb57a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/Readme.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportFuture.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportFuture.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/TestBDExportClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/TestBDExportClient.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,24 +44,30 @@
     <option name="showLibraryContents" value="true" />
     <option name="showModules" value="false" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;spring.configuration.checksum&quot;: &quot;00ca9e270cebeb9f631e765c70c0462e&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "C:/src/hapi-fhir-export-client",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "spring.configuration.checksum": "00ca9e270cebeb9f631e765c70c0462e",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\src\hapi-fhir-export-client" />
+    </key>
+  </component>
   <component name="RunManager" selected="JUnit.export in hapi-fhir-export-client">
     <configuration name="BDExportClientIT.bulk_data_export_is_successful" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="hapi-fhir-export-client" />
@@ -156,7 +165,7 @@
       <workItem from="1697810786804" duration="26563000" />
       <workItem from="1698133132101" duration="704000" />
       <workItem from="1698133848659" duration="6889000" />
-      <workItem from="1698302375232" duration="22533000" />
+      <workItem from="1698302375232" duration="26276000" />
     </task>
     <task id="LOCAL-00001" summary="Reconfigure project as a maven module.">
       <created>1697625379782</created>
@@ -219,11 +228,6 @@
           <url>file://$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/TestBDExportRequest.java</url>
           <line>41</line>
           <option name="timeStamp" value="18" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/TestBDExportClient.java</url>
-          <line>135</line>
-          <option name="timeStamp" value="36" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

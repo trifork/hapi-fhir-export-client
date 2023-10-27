@@ -162,4 +162,8 @@ public class BDExportFuture implements Future<BDExportResponse> {
 
         return cachedPollResponse;
     }
+
+    public URI getPollingUri() {
+        return pollingUri;
+    }
 }

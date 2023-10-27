@@ -60,7 +60,7 @@ public class BDExportClient {
      *
      * @return a future
      */
-    public Future<BDExportResponse> continueExport(URI contentLocation) {
+    public Future<BDExportResponse> resumeExport(URI contentLocation) {
         return new BDExportFuture(fhirContext, exportClient, contentLocation);
     }
 
