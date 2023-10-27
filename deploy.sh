@@ -107,6 +107,10 @@ git_commit_snapshot_change() {
   git commit -am "Set snapshot version (${RELEASE_VERSION}-SNAPSHOT)"
 }
 
+maven_verify_the_project() {
+  mvn -U clean verify
+}
+
 ask_which_release_type_then_bump_version_and_deploy() {
   CURRENT_VERSION="$(
    echo "$(mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version)"\
@@ -134,12 +138,13 @@ ask_which_release_type_then_bump_version_and_deploy() {
 }
 
 maven_deploy() {
-  mvn -U clean deploy
+  mvn -U clean deploy -DskipTests=true
   output_success "MAVEN" "Succesfully deployed version: ${NEW_VERSION}"
 }
 
 git_require_on_main_branch
 git_require_clean_work_tree
 git_require_remote_branch_head_equals_local_branch_head
+maven_verify_the_project
 ask_which_release_type_then_bump_version_and_deploy
 
