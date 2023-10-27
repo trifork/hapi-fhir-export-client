@@ -37,14 +37,14 @@
         </repository>
         <repository>
             <id>nexus</id>
-            <url>https://nexus3.trifork.com/repository/trifhir</url>
+            <url>https://nexus3.trifork.com/repository/ehealth-maven-releases</url>
         </repository>
     </repositories>
 
     <distributionManagement>
         <repository>
             <id>nexus</id>
-            <url>https://nexus3.trifork.com/repository/trifhir</url>
+            <url>https://nexus3.trifork.com/repository/ehealth-maven-releases</url>
         </repository>
     </distributionManagement>
 

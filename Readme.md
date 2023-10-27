@@ -47,10 +47,10 @@ Example of a request, following the examples given in the
                     "date",
                     new DateParam(
                         ParamPrefixEnum.GREATERTHAN,
-                        Date.from(Instant.now().minus(2, ChronoUnit.DAYS)
+                        Date.from(Instant.now().minus(2, ChronoUnit.DAYS))
                     )
                 )
-            );
+        );
                 
     ...
 ```
