@@ -61,12 +61,12 @@ we can go ahead and initiate an export.
 ## Initiating an export
 
 Assuming the client has been configured, and a request has been made, a request can then be initiated, which returns a
-[BDExportRequest](src/main/java/com/trifork/ehealth/export/BDExportFuture.java), where the result will eventually be available.
+[BDExportFuture](src/main/java/com/trifork/ehealth/export/BDExportFuture.java), where the result will eventually be available.
 
 ```java
     ...
 
-        BDExportRequest future = exportClient.startExport(request);
+        BDExportFuture future = exportClient.startExport(request);
         
     ...
 ```
@@ -80,11 +80,11 @@ Example:
 ```java
     ...
 
-        BDExportRequest future = exportClient.startExport(request);
+        BDExportFuture future = exportClient.startExport(request);
         URI pollingUri = future.getPollingUri();
         
         ...
 
-        BDExportRequest futureForTheSameExport = exportClient.resumeExport(pollingUri)
+        BDExportFuture futureForTheSameExport = exportClient.resumeExport(pollingUri)
     ...
 ```
