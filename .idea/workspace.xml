@@ -6,10 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="d7f517b1-c294-4da7-84dd-dd8794acb57a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/HapiFhirExportClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/HapiFhirExportClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/BDExportClientIT.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/BDExportClientIT.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/TestBDExportClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/TestBDExportClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -159,7 +156,7 @@
       <workItem from="1697810786804" duration="26563000" />
       <workItem from="1698133132101" duration="704000" />
       <workItem from="1698133848659" duration="6889000" />
-      <workItem from="1698302375232" duration="22105000" />
+      <workItem from="1698302375232" duration="22533000" />
     </task>
     <task id="LOCAL-00001" summary="Reconfigure project as a maven module.">
       <created>1697625379782</created>
