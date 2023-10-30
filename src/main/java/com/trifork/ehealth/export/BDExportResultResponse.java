@@ -10,7 +10,7 @@ import java.util.Objects;
 /**
  * See <a href="https://hl7.org/fhir/uv/bulkdata/export/index.html#request-flow">Complete Status Documentation</a>
  */
-public class BDExportCompleteResult {
+public class BDExportResultResponse {
     @JsonProperty("transactionTime")
     private String transactionTime;
 
@@ -29,10 +29,10 @@ public class BDExportCompleteResult {
     @JsonProperty("extension")
     private Map<String, Object> extension;
 
-    public BDExportCompleteResult() {
+    public BDExportResultResponse() {
     }
 
-    public BDExportCompleteResult(
+    public BDExportResultResponse(
             String transactionTime,
             String request,
             boolean requiresAccessToken,
@@ -114,7 +114,7 @@ public class BDExportCompleteResult {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        BDExportCompleteResult that = (BDExportCompleteResult) o;
+        BDExportResultResponse that = (BDExportResultResponse) o;
         return requiresAccessToken == that.requiresAccessToken
                 && Objects.equals(transactionTime, that.transactionTime)
                 && Objects.equals(request, that.request)

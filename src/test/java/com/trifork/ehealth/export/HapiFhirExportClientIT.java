@@ -111,16 +111,16 @@ public class HapiFhirExportClientIT {
 
         assertThat(pollResponse.statusCode()).isEqualTo(200);
 
-        BDExportCompleteResult response = new ObjectMapper().readValue(pollResponse.body(), BDExportCompleteResult.class);
+        BDExportResultResponse response = new ObjectMapper().readValue(pollResponse.body(), BDExportResultResponse.class);
 
         assertTrue(response.getError().isEmpty());
         assertEquals(baseUri.toString() + "$export", response.getRequest());
         assertTrue(response.isRequiresAccessToken());
 
-        List<BDExportCompleteResult.OutputItem> output = response.getOutput();
+        List<BDExportResultResponse.OutputItem> output = response.getOutput();
         assertThat(output.size()).isGreaterThan(0);
 
-        BDExportCompleteResult.OutputItem outputItem = output.get(0);
+        BDExportResultResponse.OutputItem outputItem = output.get(0);
         assertEquals("Condition", outputItem.getType());
         assertThat(outputItem.getUrl()).contains("/fhir/Binary/");
     }

@@ -125,7 +125,7 @@ public class BDExportFuture implements Future<BDExportResponse> {
             int statusCode = response.statusCode();
 
             if (statusCode == 200) {
-                BDExportCompleteResult result = new ObjectMapper().readValue(response.body(), BDExportCompleteResult.class);
+                BDExportResultResponse result = new ObjectMapper().readValue(response.body(), BDExportResultResponse.class);
 
                 return Optional.of(
                         new BDExportResponse(statusCode, result, null)

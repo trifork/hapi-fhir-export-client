@@ -4,7 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d7f517b1-c294-4da7-84dd-dd8794acb57a" name="Changes" comment="" />
+    <list default="true" id="d7f517b1-c294-4da7-84dd-dd8794acb57a" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportResourceClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportResourceResult.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportCompleteResult.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportResultResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportFuture.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportFuture.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/BDExportResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/HapiFhirExportClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trifork/ehealth/export/HapiFhirExportClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/BDExportClientIT.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/BDExportClientIT.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/HapiFhirExportClientIT.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/HapiFhirExportClientIT.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/TestBDExportClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/trifork/ehealth/export/TestBDExportClient.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -62,7 +74,7 @@
       <recent name="C:\src\hapi-fhir-export-client" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.export in hapi-fhir-export-client">
+  <component name="RunManager" selected="JUnit.BDExportClientIT.bulk_data_export_is_successful">
     <configuration name="BDExportClientIT.bulk_data_export_is_successful" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="hapi-fhir-export-client" />
       <extension name="coverage">
@@ -137,10 +149,10 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.BDExportClientIT.bulk_data_export_is_successful" />
         <item itemvalue="JUnit.export in hapi-fhir-export-client" />
         <item itemvalue="JUnit.TestBDExportClient.export_has_been_cancelled" />
         <item itemvalue="JUnit.TestBDExportClient.export_times_out" />
-        <item itemvalue="JUnit.BDExportClientIT.bulk_data_export_is_successful" />
         <item itemvalue="JUnit.TestBDExportClient.export_has_finished" />
       </list>
     </recent_temporary>
@@ -224,6 +236,7 @@
       <configuration name="JUnit">
         <watch expression="((BDExportClient)((BDExportClientIT)this).exportClient).exportClient" custom="com.trifork.ehealth.export.BDExportClientIT,com.trifork.ehealth.export.BDExportClient" />
         <watch expression="((BDExportClient)((BDExportClientIT)this).exportClient).exportClient" custom="com.trifork.ehealth.export.BDExportClientIT,com.trifork.ehealth.export.BDExportClient" />
+        <watch expression="new String(resource.getData(), StandardCharsets.UTF_8)" language="JAVA" custom="java.nio.charset.StandardCharsets" />
       </configuration>
     </watches-manager>
   </component>

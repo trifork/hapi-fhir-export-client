@@ -2,12 +2,7 @@ package com.trifork.ehealth.export;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.api.Constants;
-import ca.uhn.fhir.rest.param.DateParam;
-import ca.uhn.fhir.rest.param.ParamPrefixEnum;
-import ca.uhn.fhir.rest.param.TokenParam;
-import org.hl7.fhir.r4.model.InstantType;
 import org.hl7.fhir.r4.model.OperationOutcome;
-import org.hl7.fhir.r4.model.ResourceType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -22,9 +17,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -106,11 +98,11 @@ public class TestBDExportClient {
         assertFalse(future.isDone());
         assertFalse(future.isCancelled());
 
-        BDExportCompleteResult expectedResult = new BDExportCompleteResult(
+        BDExportResultResponse expectedResult = new BDExportResultResponse(
                 "1337",
                 exportUri.toString(),
                 false,
-                Collections.singletonList(new BDExportCompleteResult.OutputItem("Binary", "url")),
+                Collections.singletonList(new BDExportResultResponse.OutputItem("Binary", "url")),
                 Collections.emptyList(),
                 Collections.emptyMap()
         );
@@ -169,7 +161,7 @@ public class TestBDExportClient {
         doReturn(createHeaders(Map.of("x-progress", Collections.singletonList("In PROGRESS")))).when(pollResponse).headers();
     }
 
-    private void configurePollHasFinished(BDExportCompleteResult expectedResult) throws JsonProcessingException {
+    private void configurePollHasFinished(BDExportResultResponse expectedResult) throws JsonProcessingException {
         doReturn(Constants.STATUS_HTTP_200_OK).when(pollResponse).statusCode();
         doReturn(createHeaders(Map.of("Content-Type", Collections.singletonList("application/json")))).when(pollResponse).headers();
 

@@ -66,7 +66,7 @@ class HapiFhirExportClient {
     }
 
     /**
-     * Cancel a Bulk Data Export, using the polling location.
+     * Cancel a Bulk Data Export, given a polling location.
      */
     public HttpResponse<String> cancel(URI contentLocation) throws IOException, InterruptedException {
         HttpRequest httpRequest = HttpRequest.newBuilder()

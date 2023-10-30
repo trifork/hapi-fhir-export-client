@@ -8,17 +8,15 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpResponse;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import static ca.uhn.fhir.rest.api.Constants.STATUS_HTTP_202_ACCEPTED;
 import static com.trifork.ehealth.export.BDExportUtils.extractContentLocation;
 
 public class BDExportClient {
     private final FhirContext fhirContext;
-    private HapiFhirExportClient exportClient;
+    private final HapiFhirExportClient exportClient;
 
     public BDExportClient(FhirContext fhirContext, HttpClient httpClient) {
         this.fhirContext = fhirContext;
@@ -57,7 +55,6 @@ public class BDExportClient {
      * Resume a Bulk Data Export, given a polling status URI.
      *
      * @param contentLocation - URI of the status for the ongoing export
-     *
      * @return a future
      */
     public Future<BDExportResponse> resumeExport(URI contentLocation) {
