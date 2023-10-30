@@ -87,12 +87,12 @@ public class BDExportClient {
         }
 
         @Override
-        public BDExportResponse get() throws InterruptedException, ExecutionException {
+        public BDExportResponse get() {
             return response;
         }
 
         @Override
-        public BDExportResponse get(long timeout, @NotNull TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+        public BDExportResponse get(long timeout, @NotNull TimeUnit unit) {
             return response;
         }
     }
