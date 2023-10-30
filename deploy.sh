@@ -92,7 +92,7 @@ get_bumped_version() {
       ;;
   esac
 
-  echo "${MAJOR}.${MINOR}.${PATCH}"
+  output_success "VERSION" "${MAJOR}.${MINOR}.${PATCH}"
 }
 
 git_commit_version_change() {
@@ -109,6 +109,7 @@ git_commit_snapshot_change() {
 
 maven_verify_the_project() {
   mvn -U clean verify
+  output_success "MAVEN" "Verify succeeded"
 }
 
 ask_which_release_type_then_bump_version_and_deploy() {
@@ -127,19 +128,18 @@ ask_which_release_type_then_bump_version_and_deploy() {
   NEW_VERSION=$(get_bumped_version "$CURRENT_VERSION" "$RELEASE_TYPE")
   mvn versions:set -DgenerateBackupPoms=false -DnewVersion="${NEW_VERSION}"
 
+  output_success "MAVEN" "Bumped pom.xml version to: ${NEW_VERSION}"
+
   git_commit_version_change "${NEW_VERSION}"
 
-  output_success "MAVEN" "Bumped version to: ${NEW_VERSION}"
+  output_success "GIT" "Committed new version: ${NEW_VERSION}"
 
-  maven_deploy "${NEW_VERSION}"
+  mvn -U clean deploy -DskipTests=true
+
+  output_success "MAVEN" "Deployed new artifact version: ${NEW_VERSION}"
 
   mvn versions:set -DgenerateBackupPoms=false -DnewVersion="${NEW_VERSION}-SNAPSHOT"
   git_commit_snapshot_change "${NEW_VERSION}"
-}
-
-maven_deploy() {
-  mvn -U clean deploy -DskipTests=true
-  output_success "MAVEN" "Succesfully deployed version: ${NEW_VERSION}"
 }
 
 git_require_on_main_branch
