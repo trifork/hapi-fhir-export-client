@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 output_error() {
   echo >&2 -e "🔴 ${1}: ${2}"
 }

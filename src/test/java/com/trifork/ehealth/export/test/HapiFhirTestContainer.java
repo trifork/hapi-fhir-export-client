@@ -1,13 +1,10 @@
 package com.trifork.ehealth.export.test;
 
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.rest.client.api.IGenericClient;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.time.Duration;
 
 public class HapiFhirTestContainer {
