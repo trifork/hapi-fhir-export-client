@@ -32,7 +32,7 @@ public class BDExportClientIT {
     private URI baseUri;
     private final List<Condition> createdResources = new ArrayList<>();
     private BDExportClient exportClient;
-    private BDExportResourceClient exportResourceClient;
+    private BDExportConverter exportResourceClient;
     private HttpClient httpClient;
 
     @BeforeAll
@@ -45,7 +45,7 @@ public class BDExportClientIT {
         this.baseUri = hapiFhirTestContainer.getHapiFhirUri();
         IGenericClient hapiFhirClient = fhirContext.newRestfulGenericClient(baseUri.toString());
         this.exportClient = new BDExportClient(fhirContext, httpClient);
-        this.exportResourceClient = new BDExportResourceClient(hapiFhirClient);
+        this.exportResourceClient = new BDExportConverter(hapiFhirClient);
 
         // Create test resources for export
         for (ConditionClinical conditionClinical : ConditionClinical.values()) {

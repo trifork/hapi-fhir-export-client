@@ -10,10 +10,10 @@ import java.util.stream.Collectors;
 /**
  * Take a BDExportCompleteResult's items, and convert it to FHIR resources, by fetching the content from the result urls.
  */
-public class BDExportResourceClient {
+public class BDExportConverter {
     private final IGenericClient hapiFhirClient;
 
-    public BDExportResourceClient(IGenericClient hapiFhirClient) {
+    public BDExportConverter(IGenericClient hapiFhirClient) {
         this.hapiFhirClient = hapiFhirClient;
     }
 
