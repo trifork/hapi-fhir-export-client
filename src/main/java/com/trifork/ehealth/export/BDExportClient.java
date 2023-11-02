@@ -44,7 +44,7 @@ public class BDExportClient {
             OperationOutcome outcome = fhirContext.newJsonParser()
                     .parseResource(OperationOutcome.class, response.body());
 
-            BDExportResponse exportResponse = new BDExportResponse(statusCode, null, outcome);
+            BDExportResponse exportResponse = new BDExportResponse(response.uri(), statusCode, null, outcome);
             return new ErrorFuture(exportResponse);
         } else {
             throw new RuntimeException("Failed to initiate export, server responded with: " + statusCode);

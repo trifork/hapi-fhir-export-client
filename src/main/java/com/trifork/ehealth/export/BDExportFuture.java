@@ -128,14 +128,14 @@ public class BDExportFuture implements Future<BDExportResponse> {
                 BDExportResultResponse result = new ObjectMapper().readValue(response.body(), BDExportResultResponse.class);
 
                 return Optional.of(
-                        new BDExportResponse(statusCode, result, null)
+                        new BDExportResponse(pollingUri, statusCode, result, null)
                 );
             } else if (statusCode >= 400 && statusCode <= 599) {
                 OperationOutcome operationOutcome = fhirContext.newJsonParser()
                         .parseResource(OperationOutcome.class, response.body());
 
                 return Optional.of(
-                        new BDExportResponse(statusCode, null, operationOutcome)
+                        new BDExportResponse(pollingUri, statusCode, null, operationOutcome)
                 );
             }
         }
