@@ -17,6 +17,7 @@ import java.net.http.HttpClient;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +33,7 @@ public class BDExportClientIT {
     private URI baseUri;
     private final List<Condition> createdResources = new ArrayList<>();
     private BDExportClient exportClient;
-    private BDExportConverter exportResourceClient;
+    private BDExportConverter exportResourceConverter;
     private HttpClient httpClient;
 
     @BeforeAll
@@ -45,7 +46,7 @@ public class BDExportClientIT {
         this.baseUri = hapiFhirTestContainer.getHapiFhirUri();
         IGenericClient hapiFhirClient = fhirContext.newRestfulGenericClient(baseUri.toString());
         this.exportClient = new BDExportClient(fhirContext, httpClient);
-        this.exportResourceClient = new BDExportConverter(hapiFhirClient);
+        this.exportResourceConverter = new BDExportConverter(hapiFhirClient);
 
         // Create test resources for export
         for (ConditionClinical conditionClinical : ConditionClinical.values()) {
@@ -71,7 +72,7 @@ public class BDExportClientIT {
         assertTrue(future.isDone());
 
         // Now test the mapping...
-        BDExportResourceResult resourceResult = exportResourceClient.convert(response.getResult().get());
+        BDExportResourceResult resourceResult = exportResourceConverter.convert(response.getResult().get());
 
         List<BDExportResourceResult.ResourceItem> outputResources = resourceResult.getOutput();
         assertEquals(1, outputResources.size());

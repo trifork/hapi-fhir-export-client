@@ -23,9 +23,9 @@ We also need a HttpClient, which comes configured with all the necessary securit
 properties specific to the application.
 
 ```java
-        FhirContext fhirContext = FhirContext.forR4();
-        httpClient = HttpClient.newHttpClient();
-        BDExportClient exportClient = new BDExportClient(fhirContext, httpClient);
+    FhirContext fhirContext = FhirContext.forR4();
+    httpClient = HttpClient.newHttpClient();
+    BDExportClient exportClient = new BDExportClient(fhirContext, httpClient);
 ```
 
 ## Setting up the request
@@ -99,5 +99,64 @@ Example:
         ...
 
         BDExportFuture futureForTheSameExport = exportClient.resumeExport(pollingUri)
+    ...
+```
+
+## Output
+When the export eventually finishes, the result will be available in a BDExportResponse, and will contain
+links to FHIR Binary resources, that contain the output:
+
+```java
+    ...
+
+        BDExportFuture future = exportClient.startExport(request);
+        BDExportResponse response = future.get();
+        
+        Optional<BDExportResultResponse> resultOpt = response.getResult();
+        if (resultOpt.isPresent()) {
+            BDExportResultResponse result = resultOpt.get();
+            List<BDExportResultResponse.OutputItem> output = result.getOutput();
+    
+            // Fetch and read binary outputs
+    
+            List<BDExportResultResponse.OutputItem> error = result.getError();
+    
+            // Fetch and read errors during processing.
+        } else if (response.getError().isPresent()) {
+            // Handle errors..
+        }
+        
+    ...
+```
+
+## Parsing the output
+There are many options of handling the output. A BDExportResultResponse only provides a link to the actual output
+to the Bulk Data Export, usually through a FHIR Binary resource.
+You could either fetch those binary resources manually, or use a convenient converter in this client library:
+
+```java
+    ...
+        BDExportResponse response = future.get();
+        Optional<BDExportResultResponse> resultOpt = response.getResult();
+        if (resultOpt.isPresent()) {
+            BDExportResourceResult result = converter.convert(response.getResult().get());
+    
+            for (BDExportResourceResult.ResourceItem resourceItem : result.getOutput()) {
+            Binary resource = resourceItem.getResource();
+            byte[] content = resource.getData();
+    
+            // Handle content...
+        }
+
+
+        for (BDExportResourceResult.ResourceItem resourceItem : result.getError()) {
+            Binary resource = resourceItem.getResource();
+            byte[] content = resource.getData();
+    
+            // Handle errors, e.g. logging them.
+            }
+        } else if (response.getError().isPresent()) {
+            // Handle errors..
+        }
     ...
 ```
