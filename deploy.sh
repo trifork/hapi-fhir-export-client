@@ -94,7 +94,7 @@ get_bumped_version() {
       ;;
   esac
 
-  output_success "VERSION" "${MAJOR}.${MINOR}.${PATCH}"
+  echo "${MAJOR}.${MINOR}.${PATCH}"
 }
 
 git_commit_version_change() {
