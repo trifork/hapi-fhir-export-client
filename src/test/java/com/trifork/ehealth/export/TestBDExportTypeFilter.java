@@ -35,8 +35,7 @@ public class TestBDExportTypeFilter {
     void has_valid_date_query_string() {
         Date date = new Date(1697799741000L);
 
-        BDExportTypeFilter typeFilter
-                = new BDExportTypeFilter(
+        BDExportTypeFilter typeFilter = new BDExportTypeFilter(
                 ResourceType.MedicationRequest,
                 "date",
                 new DateParam(
@@ -60,5 +59,28 @@ public class TestBDExportTypeFilter {
 
         assertEquals(
                 "MedicationRequest?status=active&priority=routine", typeFilter.toTypeFilterString(fhirContext));
+    }
+
+    @Test
+    void multiple_param_values_are_comma_separated() {
+        Date date = new Date(1697799741000L);
+
+        BDExportTypeFilter typeFilter = new BDExportTypeFilter(
+                ResourceType.MedicationRequest,
+                "_lastUpdated",
+                new DateParam(
+                        ParamPrefixEnum.GREATERTHAN,
+                        new DateType(date, TemporalPrecisionEnum.DAY)
+                )
+        ).and(
+                "_lastUpdated",
+                new DateParam(
+                        ParamPrefixEnum.LESSTHAN,
+                        new DateType(date, TemporalPrecisionEnum.DAY)
+                )
+        );
+
+        assertEquals(
+                "MedicationRequest?_lastUpdated=gt2023-10-20,lt2023-10-20", typeFilter.toTypeFilterString(fhirContext));
     }
 }

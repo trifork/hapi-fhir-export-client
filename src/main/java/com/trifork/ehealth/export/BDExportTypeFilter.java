@@ -4,14 +4,12 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.IQueryParameterType;
 import org.hl7.fhir.r4.model.ResourceType;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class BDExportTypeFilter {
     private final ResourceType resourceType;
-    private final Map<String, IQueryParameterType> queryParams = new LinkedHashMap<>();
+    private final Map<String, List<IQueryParameterType>> queryParams = new LinkedHashMap<>();
 
     public BDExportTypeFilter(ResourceType resourceType, String paramName, IQueryParameterType paramQuery) {
         Objects.requireNonNull(resourceType);
@@ -19,11 +17,15 @@ public class BDExportTypeFilter {
         Objects.requireNonNull(paramQuery);
 
         this.resourceType = resourceType;
-        queryParams.put(paramName, paramQuery);
+        queryParams.put(paramName, new ArrayList<>(List.of(paramQuery)));
     }
 
     public BDExportTypeFilter and(String paramName, IQueryParameterType paramQuery) {
-        queryParams.put(paramName, paramQuery);
+        if (!queryParams.containsKey(paramName)) {
+            queryParams.put(paramName, new ArrayList<>());
+        }
+
+        queryParams.get(paramName).add(paramQuery);
         return this;
     }
 
@@ -36,8 +38,12 @@ public class BDExportTypeFilter {
 
             String params = queryParams.entrySet().stream()
                     .map(entry -> {
-                        IQueryParameterType value = entry.getValue();
-                        return String.format("%s=%s", entry.getKey(), value.getValueAsQueryToken(fhirContext));
+                        var query = entry.getValue()
+                                .stream()
+                                .map(value -> value.getValueAsQueryToken(fhirContext))
+                                .collect(Collectors.joining(","));
+
+                        return String.format("%s=%s", entry.getKey(), query);
                     })
                     .collect(Collectors.joining("&"));
             builder.append(params);
