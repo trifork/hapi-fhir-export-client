@@ -151,24 +151,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.8</version>
-                <executions>
-                    <execution>
-                        <id>default-deploy</id>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>deploy</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <serverId>nexus</serverId>
-                    <skipStaging>true</skipStaging>
-                </configuration>
-            </plugin>
             <!-- Tell Maven which Java source version you want to use -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
