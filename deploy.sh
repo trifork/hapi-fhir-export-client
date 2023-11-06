@@ -130,6 +130,7 @@ ask_which_release_type_then_bump_version_and_deploy() {
 
   NEW_VERSION=$(get_bumped_version "$CURRENT_VERSION" "$RELEASE_TYPE")
   mvn versions:set -DgenerateBackupPoms=false -DnewVersion="${NEW_VERSION}"
+  sed -i "s/<version>.*<\/version>/<version>${NEW_VERSION}<\/version>/g" "./Readme.md"
 
   output_success "MAVEN" "Bumped pom.xml version to: ${NEW_VERSION}"
 
