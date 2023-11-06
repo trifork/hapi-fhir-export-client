@@ -11,7 +11,7 @@ public class BDExportResponse {
     private final BDExportResultResponse result;
     private final OperationOutcome error;
 
-    BDExportResponse(URI contentLocation, int statusCode, BDExportResultResponse result, OperationOutcome error) {
+    public BDExportResponse(URI contentLocation, int statusCode, BDExportResultResponse result, OperationOutcome error) {
         this.contentLocation = contentLocation;
         this.statusCode = statusCode;
         this.result = result;
