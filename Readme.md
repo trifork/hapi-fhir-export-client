@@ -136,6 +136,8 @@ You could either fetch those binary resources manually, or use a convenient conv
 
 ```java
     ...
+        IGenericClient hapiFhirClient = ...;
+        BDExportConverter converter = new BDExportConverter(hapiFhirClient); 
         BDExportResponse response = future.get();
         Optional<BDExportResultResponse> resultOpt = response.getResult();
         if (resultOpt.isPresent()) {
