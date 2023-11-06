@@ -3,6 +3,7 @@ package com.trifork.ehealth.export;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -10,7 +11,7 @@ import java.util.Objects;
 /**
  * See <a href="https://hl7.org/fhir/uv/bulkdata/export/index.html#request-flow">Complete Status Documentation</a>
  */
-public class BDExportResultResponse {
+public class BDExportResultResponse implements Serializable {
     @JsonProperty("transactionTime")
     private String transactionTime;
 

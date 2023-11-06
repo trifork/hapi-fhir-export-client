@@ -13,7 +13,7 @@ public class BDExportResourceResult {
     private List<ResourceItem> error;
     private Map<String, Object> extension;
 
-    BDExportResourceResult(
+    public BDExportResourceResult(
             String transactionTime,
             String request,
             boolean requiresAccessToken,
