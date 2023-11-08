@@ -1,13 +1,13 @@
 package com.trifork.ehealth.export;
 
 import ca.uhn.fhir.context.FhirContext;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.hl7.fhir.r4.model.OperationOutcome;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpResponse;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -28,13 +28,12 @@ public class BDExportClient {
      *
      * @param request - Configuration for the export
      * @return a future
-     *
      * @throws IOException
      * @throws InterruptedException
      */
     public Future<BDExportResponse> startExport(BDExportRequest request) throws IOException, InterruptedException {
-        HttpResponse<String> response = exportClient.initiate(request);
-        int statusCode = response.statusCode();
+        HttpResponse response = exportClient.initiate(request);
+        int statusCode = response.getStatusLine().getStatusCode();
 
         if (statusCode == STATUS_HTTP_202_ACCEPTED) {
             URI pollLocation = extractContentLocation(response);
@@ -42,9 +41,9 @@ public class BDExportClient {
             return new BDExportFuture(fhirContext, exportClient, pollLocation);
         } else if (statusCode >= 400 && statusCode <= 599) {
             OperationOutcome outcome = fhirContext.newJsonParser()
-                    .parseResource(OperationOutcome.class, response.body());
+                    .parseResource(OperationOutcome.class, response.getEntity().getContent());
 
-            BDExportResponse exportResponse = new BDExportResponse(response.uri(), statusCode, null, outcome);
+            BDExportResponse exportResponse = new BDExportResponse(request.getExportUri(), statusCode, null, outcome);
             return new ErrorFuture(exportResponse);
         } else {
             throw new RuntimeException("Failed to initiate export, server responded with: " + statusCode);

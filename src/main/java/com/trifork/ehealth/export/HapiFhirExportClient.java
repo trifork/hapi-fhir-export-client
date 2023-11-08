@@ -2,15 +2,18 @@ package com.trifork.ehealth.export;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.api.Constants;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.hl7.fhir.r4.model.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 
 
@@ -36,46 +39,41 @@ class HapiFhirExportClient {
     /**
      * Initiate an async bulk data export
      */
-    public HttpResponse<String> initiate(BDExportRequest exportRequest) throws IOException, InterruptedException {
+    public HttpResponse initiate(BDExportRequest exportRequest) throws IOException {
         Parameters parameters = exportRequest.toParameters(fhirContext);
         String body = fhirContext.newJsonParser().encodeResourceToString(parameters);
 
         logger.info("Initiating a 'Bulk Data Export'");
 
-        HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(exportRequest.getExportUri())
-                .POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8))
-                .header("Prefer", "respond-async")
-                .header("Content-Type", Constants.CT_JSON)
-                .build();
+        HttpPost request = new HttpPost(exportRequest.getExportUri());
+        request.setHeader("Prefer", "respond-async");
+        request.setHeader("Content-Type", Constants.CT_JSON);
 
-        return httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        StringEntity entity = new StringEntity(body, StandardCharsets.UTF_8);
+        request.setEntity(entity);
+
+        return httpClient.execute(request);
     }
 
     /**
      * Poll an initiated Bulk Data Export, given a polling location.
      */
-    public HttpResponse<String> poll(URI contentLocation) throws IOException, InterruptedException {
-        HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(contentLocation)
-                .build();
+    public HttpResponse poll(URI contentLocation) throws IOException {
+        HttpGet request = new HttpGet(contentLocation);
 
         logger.info("Polling status at '" + contentLocation + "'");
 
-        return httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        return httpClient.execute(request);
     }
 
     /**
      * Cancel a Bulk Data Export, given a polling location.
      */
-    public HttpResponse<String> cancel(URI contentLocation) throws IOException, InterruptedException {
-        HttpRequest httpRequest = HttpRequest.newBuilder()
-                .DELETE()
-                .uri(contentLocation)
-                .build();
+    public HttpResponse cancel(URI contentLocation) throws IOException {
+        HttpDelete request = new HttpDelete(contentLocation);
 
-        logger.info("Cancelling export '" + contentLocation +"'");
+        logger.info("Cancelling export '" + contentLocation + "'");
 
-        return httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        return httpClient.execute(request);
     }
 }

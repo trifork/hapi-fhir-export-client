@@ -5,6 +5,8 @@ import ca.uhn.fhir.rest.api.Constants;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import com.trifork.ehealth.export.test.HapiFhirTestContainer;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.hl7.fhir.r4.model.Binary;
 import org.hl7.fhir.r4.model.Condition;
 import org.hl7.fhir.r4.model.ResourceType;
@@ -13,11 +15,9 @@ import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -42,7 +42,7 @@ public class BDExportClientIT {
         hapiFhirTestContainer.start();
 
         FhirContext fhirContext = FhirContext.forR4();
-        this.httpClient = HttpClient.newHttpClient();
+        this.httpClient = HttpClientBuilder.create().build();
         this.baseUri = hapiFhirTestContainer.getHapiFhirUri();
         IGenericClient hapiFhirClient = fhirContext.newRestfulGenericClient(baseUri.toString());
         this.exportClient = new BDExportClient(fhirContext, httpClient);

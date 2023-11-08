@@ -1,26 +1,23 @@
 package com.trifork.ehealth.export;
 
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+
 import java.net.URI;
-import java.net.http.HttpHeaders;
-import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Optional;
 
 public class BDExportUtils {
-    public static boolean isCancelled(HttpHeaders headers) {
-        Optional<String> opt = headers.firstValue("x-progress");
-        return opt.isPresent() && opt.get().contains("CANCELLED");
+    public static boolean isCancelled(HttpResponse response) {
+        Header[] headers = response.getHeaders("x-progress");
+
+        return headers.length > 0 && headers[0].getValue().contains("CANCELLED");
     }
 
-    public static Optional<String> extractProgress(HttpHeaders headers) {
-        return headers.firstValue("x-progress");
-    }
-
-    public static Instant evaluateNextAllowedPollTime(HttpHeaders headers) {
-        Optional<String> opt = headers.firstValue("retry-after");
-        if (opt.isPresent()) {
-            String duration = opt.get();
+    public static Instant evaluateNextAllowedPollTime(HttpResponse response) {
+        Header[] retryHeaders = response.getHeaders("retry-after");
+        if (retryHeaders.length > 0) {
+            String duration = retryHeaders[0].getValue();
             try {
                 int durationInSeconds = Integer.parseInt(duration);
 
@@ -33,7 +30,7 @@ public class BDExportUtils {
         return Instant.now();
     }
 
-    public static URI extractContentLocation(HttpResponse<String> response) {
-        return URI.create(response.headers().firstValue("content-location").orElseThrow());
+    public static URI extractContentLocation(HttpResponse response) {
+        return URI.create(response.getHeaders("content-location")[0].getValue());
     }
 }

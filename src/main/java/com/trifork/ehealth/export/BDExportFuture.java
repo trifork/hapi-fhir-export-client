@@ -2,14 +2,16 @@ package com.trifork.ehealth.export;
 
 import ca.uhn.fhir.context.FhirContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
 import org.hl7.fhir.r4.model.OperationOutcome;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
-import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -28,7 +30,7 @@ public class BDExportFuture implements Future<BDExportResponse> {
     private final URI pollingUri;
 
     // Respect the retry-after, and cache the result, so we don't get rate limited in HAPI FHIR.
-    private HttpResponse<String> cachedPollResponse;
+    private HttpResponse cachedPollResponse;
     private Instant nextPollTime = Instant.now();
 
     BDExportFuture(FhirContext fhirContext, HapiFhirExportClient exportClient, URI pollingUri) {
@@ -41,14 +43,14 @@ public class BDExportFuture implements Future<BDExportResponse> {
     public boolean cancel(boolean mayInterruptIfRunning) {
         try {
             if (!isDone()) {
-                HttpResponse<String> cancelResponse = exportClient.cancel(pollingUri);
+                HttpResponse cancelResponse = exportClient.cancel(pollingUri);
 
-                if (cancelResponse.statusCode() == STATUS_HTTP_202_ACCEPTED) {
+                if (cancelResponse.getStatusLine().getStatusCode() == STATUS_HTTP_202_ACCEPTED) {
                     Thread.currentThread().interrupt();
                     return true;
                 }
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             throw new RuntimeException("Could not cancel export", e);
         }
 
@@ -62,9 +64,9 @@ public class BDExportFuture implements Future<BDExportResponse> {
               HAPI FHIR takes a while to cancel ongoing export jobs,
               so it still makes sense to use cached results here.
              */
-            HttpResponse<String> pollResponse = doCachedPolling();
-            return BDExportUtils.isCancelled(pollResponse.headers());
-        } catch (IOException | InterruptedException e) {
+            HttpResponse pollResponse = doCachedPolling();
+            return BDExportUtils.isCancelled(pollResponse);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -72,10 +74,11 @@ public class BDExportFuture implements Future<BDExportResponse> {
     @Override
     public boolean isDone() {
         try {
-            HttpResponse<String> pollResponse = doCachedPolling();
-            return isCancelled() || (pollResponse.statusCode() != STATUS_HTTP_202_ACCEPTED
-                    && pollResponse.statusCode() != STATUS_HTTP_429_TOO_MANY_REQUESTS);
-        } catch (IOException | InterruptedException e) {
+            HttpResponse pollResponse = doCachedPolling();
+            int statusCode = pollResponse.getStatusLine().getStatusCode();
+            return isCancelled() || (statusCode != STATUS_HTTP_202_ACCEPTED
+                    && statusCode != STATUS_HTTP_429_TOO_MANY_REQUESTS);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -119,20 +122,22 @@ public class BDExportFuture implements Future<BDExportResponse> {
         }
     }
 
-    protected Optional<BDExportResponse> awaitExportResponse() throws IOException, InterruptedException {
+    protected Optional<BDExportResponse> awaitExportResponse() throws IOException {
         if (isDone()) {
-            HttpResponse<String> response = doCachedPolling();
-            int statusCode = response.statusCode();
+            HttpResponse response = doCachedPolling();
+            int statusCode = response.getStatusLine().getStatusCode();
 
             if (statusCode == 200) {
-                BDExportResultResponse result = new ObjectMapper().readValue(response.body(), BDExportResultResponse.class);
+                InputStream content = response.getEntity().getContent();
+                BDExportResultResponse result = new ObjectMapper().readValue(content, BDExportResultResponse.class);
 
                 return Optional.of(
                         new BDExportResponse(pollingUri, statusCode, result, null)
                 );
             } else if (statusCode >= 400 && statusCode <= 599) {
+                InputStream content = response.getEntity().getContent();
                 OperationOutcome operationOutcome = fhirContext.newJsonParser()
-                        .parseResource(OperationOutcome.class, response.body());
+                        .parseResource(OperationOutcome.class, content);
 
                 return Optional.of(
                         new BDExportResponse(pollingUri, statusCode, null, operationOutcome)
@@ -143,7 +148,7 @@ public class BDExportFuture implements Future<BDExportResponse> {
         return Optional.empty();
     }
 
-    protected HttpResponse<String> doCachedPolling() throws IOException, InterruptedException {
+    protected HttpResponse doCachedPolling() throws IOException {
         boolean pastRetryAfterDuration = Instant.now().isAfter(nextPollTime);
 
         if (cachedPollResponse == null || pastRetryAfterDuration) {
@@ -153,12 +158,14 @@ public class BDExportFuture implements Future<BDExportResponse> {
         return cachedPollResponse;
     }
 
-    protected HttpResponse<String> doPolling() throws IOException, InterruptedException {
+    protected HttpResponse doPolling() throws IOException {
         this.cachedPollResponse = exportClient.poll(pollingUri);
-        this.nextPollTime = BDExportUtils.evaluateNextAllowedPollTime(cachedPollResponse.headers());
+        this.nextPollTime = BDExportUtils.evaluateNextAllowedPollTime(cachedPollResponse);
 
-        Optional<String> progress = BDExportUtils.extractProgress(cachedPollResponse.headers());
-        progress.ifPresent(s -> logger.info("'Bulk Data Export' status: '" + s + "'"));
+        Header[] progressHeaders = cachedPollResponse.getHeaders("x-progress");
+        if (progressHeaders.length > 0) {
+            logger.info("'Bulk Data Export' status: '" + progressHeaders[0].getValue() + "'");
+        }
 
         return cachedPollResponse;
     }

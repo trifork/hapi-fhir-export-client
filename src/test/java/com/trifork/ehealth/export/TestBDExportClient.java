@@ -2,6 +2,14 @@ package com.trifork.ehealth.export;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.api.Constants;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.apache.http.ProtocolVersion;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.BasicHttpEntity;
+import org.apache.http.message.BasicHttpResponse;
+import org.apache.http.message.BasicStatusLine;
 import org.hl7.fhir.r4.model.OperationOutcome;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -11,13 +19,13 @@ import org.mockito.ArgumentMatcher;
 import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpHeaders;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -25,15 +33,14 @@ import java.util.concurrent.TimeoutException;
 
 import static javolution.testing.TestContext.assertEquals;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class TestBDExportClient {
     private HttpClient httpClient;
-    private HttpResponse<String> initateResponse;
-    private HttpResponse<String> pollResponse;
+    private HttpResponse initateResponse;
+    private HttpResponse pollResponse;
     private BDExportClient exportClient;
     private final FhirContext fhirContext = FhirContext.forR4();
 
@@ -43,13 +50,15 @@ public class TestBDExportClient {
     private final HttpRequestUrlMatcher pollUriMatcher = new HttpRequestUrlMatcher(pollUri);
 
     @BeforeEach
-    void setup() throws IOException, InterruptedException {
+    void setup() throws IOException {
         this.httpClient = mock(HttpClient.class);
-        this.initateResponse = mock(HttpResponse.class);
-        this.pollResponse = mock(HttpResponse.class);
+        ProtocolVersion protocolVersion = new ProtocolVersion("http", 1, 1);
+        BasicStatusLine notFound = new BasicStatusLine(protocolVersion, 404, "Not found");
+        this.initateResponse = spy(new BasicHttpResponse(notFound));
+        this.pollResponse = spy(new BasicHttpResponse(notFound));
 
-        doReturn(initateResponse).when(httpClient).send(argThat(exportUriMatcher), any(HttpResponse.BodyHandler.class));
-        doReturn(pollResponse).when(httpClient).send(argThat(pollUriMatcher), any(HttpResponse.BodyHandler.class));
+        doReturn(initateResponse).when(httpClient).execute(argThat(exportUriMatcher));
+        doReturn(pollResponse).when(httpClient).execute(argThat(pollUriMatcher));
 
         this.exportClient = new BDExportClient(fhirContext, httpClient);
     }
@@ -59,8 +68,14 @@ public class TestBDExportClient {
         OperationOutcome operationOutcome = new OperationOutcome();
         operationOutcome.addIssue().setSeverity(OperationOutcome.IssueSeverity.INFORMATION);
 
-        doReturn(fhirContext.newJsonParser().encodeResourceToString(operationOutcome)).when(initateResponse).body();
-        doReturn(Constants.STATUS_HTTP_422_UNPROCESSABLE_ENTITY).when(initateResponse).statusCode();
+        BasicHttpEntity entity = new BasicHttpEntity();
+        entity.setContent(new ByteArrayInputStream(fhirContext.newJsonParser().encodeResourceToString(operationOutcome).getBytes(StandardCharsets.UTF_8)));
+        doReturn(entity).when(initateResponse).getEntity();
+        doReturn(new BasicStatusLine(
+                new ProtocolVersion("http", 1, 1),
+                Constants.STATUS_HTTP_422_UNPROCESSABLE_ENTITY,
+                "Unprocessable Entity")
+        ).when(initateResponse).getStatusLine();
 
         Future<BDExportResponse> future = exportClient.startExport(new BDExportRequest(exportUri));
 
@@ -71,7 +86,7 @@ public class TestBDExportClient {
         assertTrue(bdExportResponse.getError().isPresent());
         assertEquals(operationOutcome, bdExportResponse.getError().get());
 
-        verify(httpClient, atMostOnce()).send(argThat(exportUriMatcher), any());
+        verify(httpClient, atMostOnce()).execute(argThat(exportUriMatcher));
     }
 
     @Test
@@ -84,8 +99,8 @@ public class TestBDExportClient {
         assertFalse(future.isDone());
         assertFalse(future.isCancelled());
 
-        verify(httpClient, atMostOnce()).send(argThat(exportUriMatcher), any());
-        verify(httpClient, atLeastOnce()).send(argThat(pollUriMatcher), any());
+        verify(httpClient, atMostOnce()).execute(argThat(exportUriMatcher));
+        verify(httpClient, atLeastOnce()).execute(argThat(pollUriMatcher));
     }
 
     @Test
@@ -114,8 +129,8 @@ public class TestBDExportClient {
         assertTrue(response.getResult().isPresent());
         assertEquals(expectedResult, response.getResult().get());
 
-        verify(httpClient, atMostOnce()).send(argThat(exportUriMatcher), any());
-        verify(httpClient, atLeastOnce()).send(argThat(pollUriMatcher), any());
+        verify(httpClient, atMostOnce()).execute(argThat(exportUriMatcher));
+        verify(httpClient, atLeastOnce()).execute(argThat(pollUriMatcher));
     }
 
     @Test
@@ -149,36 +164,30 @@ public class TestBDExportClient {
     }
 
     private void configureExportInitiation() {
-        Map<String, List<String>> headerMap = Map.of("content-location", Collections.singletonList(pollUri.toString()));
-        HttpHeaders headers = createHeaders(headerMap);
-
-        doReturn(Constants.STATUS_HTTP_202_ACCEPTED).when(initateResponse).statusCode();
-        doReturn(headers).when(initateResponse).headers();
+        initateResponse.setHeader("content-location", pollUri.toString());
+        initateResponse.setStatusCode(Constants.STATUS_HTTP_202_ACCEPTED);
     }
 
     private void configurePollInProgress() {
-        doReturn(Constants.STATUS_HTTP_202_ACCEPTED).when(pollResponse).statusCode();
-        doReturn(createHeaders(Map.of("x-progress", Collections.singletonList("In PROGRESS")))).when(pollResponse).headers();
+        pollResponse.setStatusCode(Constants.STATUS_HTTP_202_ACCEPTED);
+        pollResponse.setHeader("x-progress", "In PROGRESS");
     }
 
     private void configurePollHasFinished(BDExportResultResponse expectedResult) throws JsonProcessingException {
-        doReturn(Constants.STATUS_HTTP_200_OK).when(pollResponse).statusCode();
-        doReturn(createHeaders(Map.of("Content-Type", Collections.singletonList("application/json")))).when(pollResponse).headers();
-
+        pollResponse.setStatusCode(Constants.STATUS_HTTP_200_OK);
+        pollResponse.setHeader("Content-Type", Constants.CT_JSON);
+        BasicHttpEntity httpEntity = new BasicHttpEntity();
         String body = new ObjectMapper().writeValueAsString(expectedResult);
-        doReturn(body).when(pollResponse).body();
+        httpEntity.setContent(new ByteArrayInputStream(body.getBytes(StandardCharsets.UTF_8)));
+        pollResponse.setEntity(httpEntity);
     }
 
     private void configurePollHasBeenCancelled() {
-        doReturn(Constants.STATUS_HTTP_202_ACCEPTED).when(pollResponse).statusCode();
-        doReturn(createHeaders(Map.of("x-progress", Collections.singletonList("CANCELLED")))).when(pollResponse).headers();
+        pollResponse.setStatusCode(Constants.STATUS_HTTP_202_ACCEPTED);
+        pollResponse.setHeader("x-progress", "CANCELLED");
     }
 
-    private HttpHeaders createHeaders(Map<String, List<String>> map) {
-        return HttpHeaders.of(map, (s, s2) -> true);
-    }
-
-    static class HttpRequestUrlMatcher implements ArgumentMatcher<HttpRequest> {
+    static class HttpRequestUrlMatcher implements ArgumentMatcher<HttpUriRequest> {
         private final URI expectedUri;
 
         public HttpRequestUrlMatcher(URI expectedUri) {
@@ -186,8 +195,8 @@ public class TestBDExportClient {
         }
 
         @Override
-        public boolean matches(HttpRequest request) {
-            return request.uri().equals(expectedUri);
+        public boolean matches(HttpUriRequest request) {
+            return expectedUri.equals(request.getURI());
         }
     }
 }
