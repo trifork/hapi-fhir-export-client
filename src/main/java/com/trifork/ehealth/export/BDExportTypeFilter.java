@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class BDExportTypeFilter {
     private final ResourceType resourceType;
-    private final Map<String, List<IQueryParameterType>> queryParams = new LinkedHashMap<>();
+    private final List<Query> queries = new ArrayList<>();
 
     public BDExportTypeFilter(ResourceType resourceType, String paramName, IQueryParameterType paramQuery) {
         Objects.requireNonNull(resourceType);
@@ -17,15 +17,11 @@ public class BDExportTypeFilter {
         Objects.requireNonNull(paramQuery);
 
         this.resourceType = resourceType;
-        queryParams.put(paramName, new ArrayList<>(List.of(paramQuery)));
+        queries.add(new Query(paramName, paramQuery));
     }
 
     public BDExportTypeFilter and(String paramName, IQueryParameterType paramQuery) {
-        if (!queryParams.containsKey(paramName)) {
-            queryParams.put(paramName, new ArrayList<>());
-        }
-
-        queryParams.get(paramName).add(paramQuery);
+        queries.add(new Query(paramName, paramQuery));
         return this;
     }
 
@@ -33,18 +29,11 @@ public class BDExportTypeFilter {
         StringBuilder builder = new StringBuilder();
         builder.append(resourceType.name());
 
-        if (!queryParams.isEmpty()) {
+        if (!queries.isEmpty()) {
             builder.append("?");
 
-            String params = queryParams.entrySet().stream()
-                    .map(entry -> {
-                        var query = entry.getValue()
-                                .stream()
-                                .map(value -> value.getValueAsQueryToken(fhirContext))
-                                .collect(Collectors.joining(","));
-
-                        return String.format("%s=%s", entry.getKey(), query);
-                    })
+            String params = queries.stream()
+                    .map(q -> String.format("%s=%s", q.getParamName(), q.getParamQuery().getValueAsQueryToken(fhirContext)))
                     .collect(Collectors.joining("&"));
             builder.append(params);
         }
@@ -52,11 +41,29 @@ public class BDExportTypeFilter {
         return builder.toString();
     }
 
+    static class Query {
+        private String paramName;
+        private IQueryParameterType paramQuery;
+
+        public Query(String key, IQueryParameterType query) {
+            this.paramName = key;
+            this.paramQuery = query;
+        }
+
+        public String getParamName() {
+            return paramName;
+        }
+
+        public IQueryParameterType getParamQuery() {
+            return paramQuery;
+        }
+    }
+
     @Override
     public String toString() {
         return "BDExportTypeFilter{" +
                 "resourceType=" + resourceType.name() +
-                ", queryParams=" + queryParams +
+                ", queryParams=" + queries +
                 '}';
     }
 
@@ -65,11 +72,11 @@ public class BDExportTypeFilter {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BDExportTypeFilter that = (BDExportTypeFilter) o;
-        return resourceType == that.resourceType && Objects.equals(queryParams, that.queryParams);
+        return resourceType == that.resourceType && Objects.equals(queries, that.queries);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(resourceType, queryParams);
+        return Objects.hash(resourceType, queries);
     }
 }

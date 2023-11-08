@@ -81,6 +81,6 @@ public class TestBDExportTypeFilter {
         );
 
         assertEquals(
-                "MedicationRequest?_lastUpdated=gt2023-10-20,lt2023-10-20", typeFilter.toTypeFilterString(fhirContext));
+                "MedicationRequest?_lastUpdated=gt2023-10-20&_lastUpdated=lt2023-10-20", typeFilter.toTypeFilterString(fhirContext));
     }
 }
