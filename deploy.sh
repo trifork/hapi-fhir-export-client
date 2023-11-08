@@ -118,8 +118,7 @@ git_commit_snapshot_change() {
 ask_which_release_type_then_bump_version_and_deploy() {
   CURRENT_VERSION="$(
    echo "$(mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version)"\
-    | grep -v "\["\
-    | grep -v "Downloading"\
+    | grep -E '^[0-9]+(\.[0-9]+)+(-SNAPSHOT)?$'
   )"
 
   output_awating_action "MAVEN" "Type in the type of release:
