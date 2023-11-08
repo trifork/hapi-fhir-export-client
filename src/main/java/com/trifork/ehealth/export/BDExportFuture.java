@@ -3,6 +3,7 @@ package com.trifork.ehealth.export;
 import ca.uhn.fhir.context.FhirContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.hl7.fhir.r4.model.OperationOutcome;
 import org.jetbrains.annotations.NotNull;
@@ -128,16 +129,25 @@ public class BDExportFuture implements Future<BDExportResponse> {
             int statusCode = response.getStatusLine().getStatusCode();
 
             if (statusCode == 200) {
-                InputStream content = response.getEntity().getContent();
-                BDExportResultResponse result = new ObjectMapper().readValue(content, BDExportResultResponse.class);
+                HttpEntity entity = response.getEntity();
+                BDExportResultResponse result = null;
+
+                if (entity.getContentLength() > 0) {
+                    InputStream content = entity.getContent();
+                    result = new ObjectMapper().readValue(content, BDExportResultResponse.class);
+                }
 
                 return Optional.of(
                         new BDExportResponse(pollingUri, statusCode, result, null)
                 );
             } else if (statusCode >= 400 && statusCode <= 599) {
-                InputStream content = response.getEntity().getContent();
-                OperationOutcome operationOutcome = fhirContext.newJsonParser()
-                        .parseResource(OperationOutcome.class, content);
+                OperationOutcome operationOutcome = null;
+
+                HttpEntity entity = response.getEntity();
+                if (entity.getContentLength() > 0) {
+                    InputStream content = entity.getContent();
+                    operationOutcome = fhirContext.newJsonParser().parseResource(OperationOutcome.class, content);
+                }
 
                 return Optional.of(
                         new BDExportResponse(pollingUri, statusCode, null, operationOutcome)

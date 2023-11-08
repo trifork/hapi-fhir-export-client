@@ -134,6 +134,28 @@ public class TestBDExportClient {
     }
 
     @Test
+    void export_has_finished_with_no_results() throws IOException, InterruptedException, ExecutionException {
+        configureExportInitiation();
+        configurePollInProgress();
+
+        Future<BDExportResponse> future = exportClient.startExport(new BDExportRequest(exportUri));
+
+        assertFalse(future.isDone());
+        assertFalse(future.isCancelled());
+
+        configurePollHasFinishedWithNoResults();
+
+        assertTrue(future.isDone());
+        assertFalse(future.isCancelled());
+        BDExportResponse response = future.get();
+        assertFalse(response.getResult().isPresent());
+        assertFalse(response.getError().isPresent());
+
+        verify(httpClient, atMostOnce()).execute(argThat(exportUriMatcher));
+        verify(httpClient, atLeastOnce()).execute(argThat(pollUriMatcher));
+    }
+
+    @Test
     void export_has_been_cancelled() throws IOException, InterruptedException {
         configureExportInitiation();
         configurePollInProgress();
@@ -178,7 +200,18 @@ public class TestBDExportClient {
         pollResponse.setHeader("Content-Type", Constants.CT_JSON);
         BasicHttpEntity httpEntity = new BasicHttpEntity();
         String body = new ObjectMapper().writeValueAsString(expectedResult);
-        httpEntity.setContent(new ByteArrayInputStream(body.getBytes(StandardCharsets.UTF_8)));
+        byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
+        httpEntity.setContent(new ByteArrayInputStream(bytes));
+        httpEntity.setContentLength(bytes.length);
+        pollResponse.setEntity(httpEntity);
+    }
+
+    private void configurePollHasFinishedWithNoResults() {
+        pollResponse.setStatusCode(Constants.STATUS_HTTP_200_OK);
+        pollResponse.setHeader("Content-Type", Constants.CT_JSON);
+        BasicHttpEntity httpEntity = new BasicHttpEntity();
+        httpEntity.setContent(new ByteArrayInputStream(new byte[]{}));
+        httpEntity.setContentLength(0);
         pollResponse.setEntity(httpEntity);
     }
 
