@@ -56,17 +56,23 @@ public class BDExportRequest {
     }
 
     public static BDExportRequest createPatientExportRequest(URI baseFhirUri) {
-        return new BDExportRequest(baseFhirUri.resolve("./Patient/$export"));
+        return new BDExportRequest(resolve(baseFhirUri, "./Patient/$export"));
     }
 
     public static BDExportRequest createGroupExportRequest(URI baseFhirUri, int groupId) {
         String str = String.format("./Group/%d/$export", groupId);
 
-        return new BDExportRequest(baseFhirUri.resolve(str));
+        return new BDExportRequest(resolve(baseFhirUri, str));
     }
 
     public static BDExportRequest createSystemExportRequest(URI baseFhirUri) {
-        return new BDExportRequest(baseFhirUri.resolve("./$export"));
+        return new BDExportRequest(resolve(baseFhirUri, "./$export"));
+    }
+
+    private static URI resolve(URI baseUri, String additionalPath) {
+        URI uriWithTrailingSlash = baseUri.toString().endsWith("/") ? baseUri : URI.create(baseUri + "/");
+
+        return uriWithTrailingSlash.resolve(additionalPath);
     }
 
     public Parameters toParameters(FhirContext fhirContext) {

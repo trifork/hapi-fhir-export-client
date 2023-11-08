@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class TestBDExportRequest {
     public static final String baseUrl = "http://localhost:8080/fhir/";
     public static final URI baseUri = URI.create(baseUrl);
+    public static final URI baseUiWithNoTrailingSlash = URI.create("http://localhost:8080/fhir");
 
     @Test
     void patient_export_request_type() {
@@ -29,7 +30,21 @@ public class TestBDExportRequest {
     }
 
     @Test
+    void patient_export_request_type_with_no_trailing_slash() {
+        BDExportRequest request = BDExportRequest.createPatientExportRequest(baseUiWithNoTrailingSlash);
+
+        assertEquals(baseUrl + "Patient/$export", request.getExportUri().toString());
+    }
+
+    @Test
     void group_of_patients_export_request_type() {
+        BDExportRequest request = BDExportRequest.createGroupExportRequest(baseUiWithNoTrailingSlash, 1337);
+
+        assertEquals(baseUrl + "Group/1337/$export", request.getExportUri().toString());
+    }
+
+    @Test
+    void group_of_patients_export_request_type_with_no_trailing_slash() {
         BDExportRequest request = BDExportRequest.createGroupExportRequest(baseUri, 1337);
 
         assertEquals(baseUrl + "Group/1337/$export", request.getExportUri().toString());
@@ -41,6 +56,14 @@ public class TestBDExportRequest {
 
         assertEquals(baseUrl + "$export", request.getExportUri().toString());
     }
+
+    @Test
+    void system_export_request_type_with_no_trailing_slash() {
+        BDExportRequest request = BDExportRequest.createSystemExportRequest(baseUiWithNoTrailingSlash);
+
+        assertEquals(baseUrl + "$export", request.getExportUri().toString());
+    }
+
 
     @Test
     void is_mapped_to_parameters() {
