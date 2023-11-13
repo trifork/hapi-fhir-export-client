@@ -43,9 +43,10 @@ class HapiFhirExportClient {
         Parameters parameters = exportRequest.toParameters(fhirContext);
         String body = fhirContext.newJsonParser().encodeResourceToString(parameters);
 
-        logger.info("Initiating a 'Bulk Data Export'");
+        URI exportUri = exportRequest.getExportUri();
+        logger.info("Initiating a 'Bulk Data Export' at: " + exportUri);
 
-        HttpPost request = new HttpPost(exportRequest.getExportUri());
+        HttpPost request = new HttpPost(exportUri);
         request.setHeader("Prefer", "respond-async");
         request.setHeader("Content-Type", Constants.CT_JSON);
 
