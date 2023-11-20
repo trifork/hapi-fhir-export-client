@@ -170,6 +170,22 @@ public class TestBDExportClient {
     }
 
     @Test
+    void export_throws_error_during_polling() throws IOException, InterruptedException {
+        configureExportInitiation();
+        configurePollInProgress();
+
+        Future<BDExportResponse> future = exportClient.startExport(new BDExportRequest(exportUri));
+
+        assertFalse(future.isDone());
+        assertFalse(future.isCancelled());
+
+        configurePollThrowsErrorDuringExport();
+
+        assertFalse(future.isCancelled());
+        assertTrue(future.isDone());
+    }
+
+    @Test
     void export_times_out() throws IOException, InterruptedException, ExecutionException {
         configureExportInitiation();
         configurePollInProgress();
@@ -211,6 +227,12 @@ public class TestBDExportClient {
         httpEntity.setContent(new ByteArrayInputStream(new byte[]{}));
         httpEntity.setContentLength(0);
         pollResponse.setEntity(httpEntity);
+    }
+
+    private void configurePollThrowsErrorDuringExport() {
+        pollResponse.setStatusCode(Constants.STATUS_HTTP_400_BAD_REQUEST);
+        pollResponse.setHeader("x-progress", "FAILED");
+        pollResponse.setEntity(null);
     }
 
     private void configurePollHasBeenCancelled() {
