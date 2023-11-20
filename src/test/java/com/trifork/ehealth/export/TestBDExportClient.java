@@ -207,6 +207,7 @@ public class TestBDExportClient {
     private void configurePollInProgress() {
         pollResponse.setStatusCode(Constants.STATUS_HTTP_202_ACCEPTED);
         pollResponse.setHeader("x-progress", "In PROGRESS");
+        pollResponse.setHeader("retry-after", "2");
     }
 
     private void configurePollHasFinished(BDExportResultResponse expectedResult) throws JsonProcessingException {

@@ -2,7 +2,6 @@ package com.trifork.ehealth.export;
 
 import ca.uhn.fhir.context.FhirContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.hl7.fhir.r4.model.OperationOutcome;
@@ -15,16 +14,14 @@ import java.io.InputStream;
 import java.net.URI;
 import java.time.Instant;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 import static ca.uhn.fhir.rest.api.Constants.STATUS_HTTP_202_ACCEPTED;
 
 public class BDExportFuture implements Future<BDExportResponse> {
     private static final Logger logger = LoggerFactory.getLogger(BDExportFuture.class);
     private static final int STATUS_HTTP_429_TOO_MANY_REQUESTS = 429;
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     private final FhirContext fhirContext;
     private final HapiFhirExportClient exportClient;
@@ -33,8 +30,13 @@ public class BDExportFuture implements Future<BDExportResponse> {
     // Respect the retry-after, and cache the result, so we don't get rate limited in HAPI FHIR.
     private HttpResponse cachedPollResponse;
     private Instant nextPollTime = Instant.now();
+    private int retryAfterInSeconds = 10;
 
-    BDExportFuture(FhirContext fhirContext, HapiFhirExportClient exportClient, URI pollingUri) {
+    BDExportFuture(
+            FhirContext fhirContext,
+            HapiFhirExportClient exportClient,
+            URI pollingUri
+    ) {
         this.fhirContext = fhirContext;
         this.exportClient = exportClient;
         this.pollingUri = pollingUri;
@@ -86,41 +88,26 @@ public class BDExportFuture implements Future<BDExportResponse> {
 
     @Override
     public BDExportResponse get() throws InterruptedException, ExecutionException {
-        try {
-            Optional<BDExportResponse> exportResponseOpt = awaitExportResponse();
-            while (exportResponseOpt.isEmpty()) {
-                Thread.sleep(1000);
-                exportResponseOpt = awaitExportResponse();
-            }
-
-            return exportResponseOpt.get();
-        } catch (IOException e) {
-            throw new ExecutionException("Failed to fetch 'Bulk Data Export' response", e);
+        Optional<BDExportResponse> exportResponseOpt = getPollingFuture().get();
+        while (exportResponseOpt.isEmpty()) {
+            exportResponseOpt = getPollingFuture().get();
         }
+
+        return exportResponseOpt.get();
     }
 
     @Override
     public BDExportResponse get(long timeout, @NotNull TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-        long timeoutMillis = unit.toMillis(timeout);
-        long startTime = System.currentTimeMillis();
-
-        try {
-            Optional<BDExportResponse> exportResponseOpt = awaitExportResponse();
-
-            while (exportResponseOpt.isEmpty()) {
-                if (System.currentTimeMillis() - startTime > timeoutMillis) {
-                    // Timeout exceeded
-                    throw new TimeoutException("Export operation timed out");
-                }
-
-                Thread.sleep(1000);
-                exportResponseOpt = awaitExportResponse();
-            }
-
-            return exportResponseOpt.get();
-        } catch (IOException e) {
-            throw new ExecutionException("Failed to fetch 'Bulk Data Export' response", e);
+        Optional<BDExportResponse> exportResponseOpt = getPollingFuture().get(timeout, unit);
+        while (exportResponseOpt.isEmpty()) {
+            exportResponseOpt = getPollingFuture().get(timeout, unit);
         }
+
+        return exportResponseOpt.get();
+    }
+
+    protected Future<Optional<BDExportResponse>> getPollingFuture() {
+        return scheduler.schedule(this::awaitExportResponse, this.retryAfterInSeconds, TimeUnit.SECONDS);
     }
 
     protected Optional<BDExportResponse> awaitExportResponse() throws IOException {
@@ -170,17 +157,26 @@ public class BDExportFuture implements Future<BDExportResponse> {
 
     protected HttpResponse doPolling() throws IOException {
         this.cachedPollResponse = exportClient.poll(pollingUri);
-        this.nextPollTime = BDExportUtils.evaluateNextAllowedPollTime(cachedPollResponse);
 
-        Header[] progressHeaders = cachedPollResponse.getHeaders("x-progress");
-        if (progressHeaders.length > 0) {
-            logger.info("'Bulk Data Export' status: '" + progressHeaders[0].getValue() + "'");
+        if (cachedPollResponse.getStatusLine().getStatusCode() == STATUS_HTTP_202_ACCEPTED) {
+            Optional<Integer> opt = BDExportUtils.extractRetryAfterInSeconds(cachedPollResponse);
+            if (opt.isPresent()) {
+                this.retryAfterInSeconds = opt.get();
+                this.nextPollTime = BDExportUtils.evaluateNextAllowedPollTime(retryAfterInSeconds);
+            }
         }
+
+        BDExportUtils.extractProgress(cachedPollResponse)
+                .ifPresent(s -> logger.info("'Bulk Data Export' status: '" + s + "'"));
 
         return cachedPollResponse;
     }
 
     public URI getPollingUri() {
         return pollingUri;
+    }
+
+    public void setRetryInterval(int seconds) {
+        this.retryAfterInSeconds = seconds;
     }
 }

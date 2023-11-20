@@ -30,7 +30,7 @@ public class BDExportClient {
      * @throws IOException
      * @throws InterruptedException
      */
-    public Future<BDExportResponse> startExport(BDExportRequest request) throws IOException, InterruptedException {
+    public Future<BDExportResponse> startExport(BDExportRequest request) throws IOException {
         HttpResponse response = exportClient.initiate(request);
         int statusCode = response.getStatusLine().getStatusCode();
 
