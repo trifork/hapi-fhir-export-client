@@ -2,7 +2,6 @@ package com.trifork.ehealth.export;
 
 import ca.uhn.fhir.context.FhirContext;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.hl7.fhir.r4.model.OperationOutcome;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,9 +17,9 @@ public class BDExportClient {
     private final FhirContext fhirContext;
     private final HapiFhirExportClient exportClient;
 
-    public BDExportClient(FhirContext fhirContext, HttpClient httpClient) {
+    public BDExportClient(FhirContext fhirContext, HapiFhirExportClient exportClient) {
         this.fhirContext = fhirContext;
-        this.exportClient = new HapiFhirExportClient(fhirContext, httpClient);
+        this.exportClient = exportClient;
     }
 
     /**

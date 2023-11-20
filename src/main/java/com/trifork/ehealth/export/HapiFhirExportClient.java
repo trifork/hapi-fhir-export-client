@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets;
  * page for more information on how to use this feature.
  * </p>
  */
-class HapiFhirExportClient {
+public class HapiFhirExportClient {
     private final Logger logger = LoggerFactory.getLogger(HapiFhirExportClient.class);
 
     private final FhirContext fhirContext;

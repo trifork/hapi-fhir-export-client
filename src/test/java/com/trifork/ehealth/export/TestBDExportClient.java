@@ -24,8 +24,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -60,7 +58,7 @@ public class TestBDExportClient {
         doReturn(initateResponse).when(httpClient).execute(argThat(exportUriMatcher));
         doReturn(pollResponse).when(httpClient).execute(argThat(pollUriMatcher));
 
-        this.exportClient = new BDExportClient(fhirContext, httpClient);
+        this.exportClient = new BDExportClient(fhirContext, new HapiFhirExportClient(fhirContext, httpClient));
     }
 
     @Test

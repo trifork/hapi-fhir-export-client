@@ -45,7 +45,7 @@ public class BDExportClientIT {
         this.httpClient = HttpClientBuilder.create().build();
         this.baseUri = hapiFhirTestContainer.getHapiFhirUri();
         IGenericClient hapiFhirClient = fhirContext.newRestfulGenericClient(baseUri.toString());
-        this.exportClient = new BDExportClient(fhirContext, httpClient);
+        this.exportClient = new BDExportClient(fhirContext, new HapiFhirExportClient(fhirContext, httpClient));
         this.exportResourceConverter = new BDExportConverter(hapiFhirClient);
 
         // Create test resources for export
