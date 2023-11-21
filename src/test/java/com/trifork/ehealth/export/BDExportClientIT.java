@@ -4,7 +4,6 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.api.Constants;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
-import com.trifork.ehealth.export.test.HapiFhirTestContainer;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.hl7.fhir.r4.model.Binary;
@@ -37,13 +36,10 @@ public class BDExportClientIT {
     private HttpClient httpClient;
 
     @BeforeAll
-    void setup() throws InterruptedException {
-        HapiFhirTestContainer hapiFhirTestContainer = new HapiFhirTestContainer();
-        hapiFhirTestContainer.start();
-
+    void setup() {
         FhirContext fhirContext = FhirContext.forR4();
         this.httpClient = HttpClientBuilder.create().build();
-        this.baseUri = hapiFhirTestContainer.getHapiFhirUri();
+        this.baseUri = URI.create("http://localhost:8080/fhir");
         IGenericClient hapiFhirClient = fhirContext.newRestfulGenericClient(baseUri.toString());
         this.exportClient = new BDExportClient(fhirContext, new HapiFhirExportClient(fhirContext, httpClient));
         this.exportResourceConverter = new BDExportConverter(hapiFhirClient);

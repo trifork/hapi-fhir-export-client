@@ -25,7 +25,6 @@
         <hl7.fhir.version>6.1.6</hl7.fhir.version>
 
         <!-- Test dependencies -->
-        <testcontainers.version>1.18.3</testcontainers.version>
         <junit.version>5.10.0</junit.version>
         <assertj.version>3.24.2</assertj.version>
     </properties>
@@ -141,11 +140,6 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers</artifactId>
-            <version>${testcontainers.version}</version>
         </dependency>
     </dependencies>
 

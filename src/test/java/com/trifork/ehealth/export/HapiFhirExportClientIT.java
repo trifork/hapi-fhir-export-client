@@ -3,7 +3,6 @@ package com.trifork.ehealth.export;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.trifork.ehealth.export.test.HapiFhirTestContainer;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -28,18 +27,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class HapiFhirExportClientIT {
-    private HapiFhirTestContainer hapiFhirTestContainer;
     private HapiFhirExportClient exportClient;
     private URI baseUri;
 
     @BeforeAll
     void setup() throws InterruptedException {
-        hapiFhirTestContainer = new HapiFhirTestContainer();
-        hapiFhirTestContainer.start();
-
         FhirContext fhirContext = FhirContext.forR4();
         HttpClient httpClient = HttpClientBuilder.create().build();
-        this.baseUri = hapiFhirTestContainer.getHapiFhirUri();
+        this.baseUri = URI.create("http://localhost:8080/fhir");
         this.exportClient = new HapiFhirExportClient(fhirContext, httpClient);
         IGenericClient hapiFhirClient = fhirContext.newRestfulGenericClient(baseUri.toString());
 
@@ -49,10 +44,6 @@ public class HapiFhirExportClientIT {
         }
     }
 
-    @AfterAll
-    void tearDown() {
-        hapiFhirTestContainer.stop();
-    }
 
     @Test
     void bulk_data_export_is_initiated() throws IOException, InterruptedException {
