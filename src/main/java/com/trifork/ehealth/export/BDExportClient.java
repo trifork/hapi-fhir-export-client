@@ -3,7 +3,6 @@ package com.trifork.ehealth.export;
 import ca.uhn.fhir.context.FhirContext;
 import org.apache.http.HttpResponse;
 import org.hl7.fhir.r4.model.OperationOutcome;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.URI;
@@ -87,7 +86,7 @@ public class BDExportClient {
         }
 
         @Override
-        public BDExportResponse get(long timeout, @NotNull TimeUnit unit) {
+        public BDExportResponse get(long timeout, TimeUnit unit) {
             return response;
         }
     }
