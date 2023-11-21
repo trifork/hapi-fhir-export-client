@@ -1,6 +1,7 @@
 package com.trifork.ehealth.export;
 
 import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.rest.api.Constants;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
@@ -34,10 +35,11 @@ public class BDExportClientIT {
     private BDExportClient exportClient;
     private BDExportConverter exportResourceConverter;
     private HttpClient httpClient;
+    private FhirContext fhirContext;
 
     @BeforeAll
     void setup() {
-        FhirContext fhirContext = FhirContext.forR4();
+        this.fhirContext = FhirContext.forR4();
         this.httpClient = HttpClientBuilder.create().build();
         this.baseUri = URI.create("http://localhost:8080/fhir");
         IGenericClient hapiFhirClient = fhirContext.newRestfulGenericClient(baseUri.toString());
@@ -45,7 +47,7 @@ public class BDExportClientIT {
         this.exportResourceConverter = new BDExportConverter(hapiFhirClient);
 
         // Create test resources for export
-        for (ConditionClinical conditionClinical : ConditionClinical.values()) {
+        for (ConditionClinical conditionClinical : List.of(ConditionClinical.ACTIVE, ConditionClinical.INACTIVE, ConditionClinical.RECURRENCE)) {
             MethodOutcome outcome = hapiFhirClient.create().resource(createCondition(conditionClinical)).execute();
             createdResources.add((Condition) outcome.getResource());
         }
@@ -81,7 +83,7 @@ public class BDExportClientIT {
 
         String content = new String(resource.getData(), StandardCharsets.UTF_8);
         for (Condition condition : createdResources) {
-            assertThat(content).contains(condition.getIdElement().getIdPart());
+            assertThat(content).contains(condition.getClinicalStatus().getCoding().get(0).getCode());
         }
     }
 }

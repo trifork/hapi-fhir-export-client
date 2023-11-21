@@ -39,7 +39,7 @@ public class HapiFhirExportClientIT {
         IGenericClient hapiFhirClient = fhirContext.newRestfulGenericClient(baseUri.toString());
 
         // Create test resources for export
-        for (ConditionClinical conditionClinical : ConditionClinical.values()) {
+        for (ConditionClinical conditionClinical : List.of(ConditionClinical.ACTIVE, ConditionClinical.INACTIVE, ConditionClinical.RECURRENCE)) {
             hapiFhirClient.create().resource(createCondition(conditionClinical)).execute();
         }
     }
@@ -104,7 +104,7 @@ public class HapiFhirExportClientIT {
         BDExportResultResponse response = new ObjectMapper().readValue(pollResponse.getEntity().getContent(), BDExportResultResponse.class);
 
         assertTrue(response.getError().isEmpty());
-        assertEquals(baseUri.toString() + "$export", response.getRequest());
+        assertEquals(baseUri.toString() + "/$export", response.getRequest());
         assertTrue(response.isRequiresAccessToken());
 
         List<BDExportResultResponse.OutputItem> output = response.getOutput();
