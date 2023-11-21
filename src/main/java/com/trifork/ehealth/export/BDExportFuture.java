@@ -1,11 +1,11 @@
 package com.trifork.ehealth.export;
 
 import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.rest.api.Constants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.hl7.fhir.r4.model.OperationOutcome;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,14 +14,16 @@ import java.io.InputStream;
 import java.net.URI;
 import java.time.Instant;
 import java.util.Optional;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static ca.uhn.fhir.rest.api.Constants.STATUS_HTTP_202_ACCEPTED;
 
 public class BDExportFuture implements Future<BDExportResponse> {
     private static final Logger logger = LoggerFactory.getLogger(BDExportFuture.class);
     private static final int STATUS_HTTP_429_TOO_MANY_REQUESTS = 429;
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     private final FhirContext fhirContext;
     private final HapiFhirExportClient exportClient;
@@ -30,7 +32,7 @@ public class BDExportFuture implements Future<BDExportResponse> {
     // Respect the retry-after, and cache the result, so we don't get rate limited in HAPI FHIR.
     private HttpResponse cachedPollResponse;
     private Instant nextPollTime = Instant.now();
-    private int retryAfterInSeconds = 10;
+    private final int retryAfterInSeconds = 10;
 
     BDExportFuture(
             FhirContext fhirContext,
@@ -78,9 +80,7 @@ public class BDExportFuture implements Future<BDExportResponse> {
     public boolean isDone() {
         try {
             HttpResponse pollResponse = doCachedPolling();
-            int statusCode = pollResponse.getStatusLine().getStatusCode();
-            return isCancelled() || (statusCode != STATUS_HTTP_202_ACCEPTED
-                    && statusCode != STATUS_HTTP_429_TOO_MANY_REQUESTS);
+            return isDone(pollResponse);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -88,36 +88,53 @@ public class BDExportFuture implements Future<BDExportResponse> {
 
     @Override
     public BDExportResponse get() throws InterruptedException, ExecutionException {
-        Optional<BDExportResponse> exportResponseOpt = getPollingFuture().get();
-        while (exportResponseOpt.isEmpty()) {
-            exportResponseOpt = getPollingFuture().get();
-        }
+        try {
+            Optional<BDExportResponse> exportResponseOpt = awaitExportResponse();
+            while (exportResponseOpt.isEmpty()) {
+                Thread.sleep(calculateSleepTimeInMs());
+                exportResponseOpt = awaitExportResponse();
+            }
 
-        return exportResponseOpt.get();
+            return exportResponseOpt.get();
+        } catch (IOException e) {
+            throw new ExecutionException("Failed to fetch 'Bulk Data Export' response", e);
+        }
     }
 
     @Override
-    public BDExportResponse get(long timeout, @NotNull TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-        Optional<BDExportResponse> exportResponseOpt = getPollingFuture().get(timeout, unit);
-        while (exportResponseOpt.isEmpty()) {
-            exportResponseOpt = getPollingFuture().get(timeout, unit);
+    public BDExportResponse get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+        long timeoutMillis = unit.toMillis(timeout);
+        long startTime = System.currentTimeMillis();
+
+        try {
+            Optional<BDExportResponse> exportResponseOpt = awaitExportResponse();
+
+            while (exportResponseOpt.isEmpty()) {
+                if (System.currentTimeMillis() - startTime > timeoutMillis) {
+                    // Timeout exceeded
+                    throw new TimeoutException("Export operation timed out");
+                }
+
+                Thread.sleep(calculateSleepTimeInMs());
+                exportResponseOpt = awaitExportResponse();
+            }
+
+            return exportResponseOpt.get();
+        } catch (IOException e) {
+            throw new ExecutionException("Failed to fetch 'Bulk Data Export' response", e);
         }
-
-        return exportResponseOpt.get();
-    }
-
-    protected Future<Optional<BDExportResponse>> getPollingFuture() {
-        return scheduler.schedule(this::awaitExportResponse, this.retryAfterInSeconds, TimeUnit.SECONDS);
     }
 
     protected Optional<BDExportResponse> awaitExportResponse() throws IOException {
-        if (isDone()) {
-            HttpResponse response = doCachedPolling();
+        HttpResponse response = doCachedPolling();
+        if (isDone(response)) {
             int statusCode = response.getStatusLine().getStatusCode();
 
-            if (statusCode == 200) {
+            if (statusCode == Constants.STATUS_HTTP_200_OK) {
                 HttpEntity entity = response.getEntity();
                 BDExportResultResponse result = null;
+
+                logger.info("'Bulk Data Export' finished");
 
                 if (entity.getContentLength() > 0) {
                     InputStream content = entity.getContent();
@@ -130,8 +147,10 @@ public class BDExportFuture implements Future<BDExportResponse> {
             } else if (statusCode >= 400 && statusCode <= 599) {
                 OperationOutcome operationOutcome = null;
 
+                logger.info("'Bulk Data Export' failed with status: " + statusCode);
+
                 HttpEntity entity = response.getEntity();
-                if (entity.getContentLength() > 0) {
+                if (entity != null && entity.getContentLength() > 0) {
                     InputStream content = entity.getContent();
                     operationOutcome = fhirContext.newJsonParser().parseResource(OperationOutcome.class, content);
                 }
@@ -145,10 +164,16 @@ public class BDExportFuture implements Future<BDExportResponse> {
         return Optional.empty();
     }
 
+    protected boolean isDone(HttpResponse response) {
+        int statusCode = response.getStatusLine().getStatusCode();
+        return BDExportUtils.isCancelled(response) || (statusCode != STATUS_HTTP_202_ACCEPTED
+                && statusCode != STATUS_HTTP_429_TOO_MANY_REQUESTS);
+    }
+
     protected HttpResponse doCachedPolling() throws IOException {
         boolean pastRetryAfterDuration = Instant.now().isAfter(nextPollTime);
 
-        if (cachedPollResponse == null || pastRetryAfterDuration) {
+        if (cachedPollResponse == null || (pastRetryAfterDuration && !isDone(cachedPollResponse))) {
             return doPolling();
         }
 
@@ -158,25 +183,25 @@ public class BDExportFuture implements Future<BDExportResponse> {
     protected HttpResponse doPolling() throws IOException {
         this.cachedPollResponse = exportClient.poll(pollingUri);
 
-        if (cachedPollResponse.getStatusLine().getStatusCode() == STATUS_HTTP_202_ACCEPTED) {
-            Optional<Integer> opt = BDExportUtils.extractRetryAfterInSeconds(cachedPollResponse);
-            if (opt.isPresent()) {
-                this.retryAfterInSeconds = opt.get();
-                this.nextPollTime = BDExportUtils.evaluateNextAllowedPollTime(retryAfterInSeconds);
-            }
-        }
+        Optional<Integer> opt = BDExportUtils.extractRetryAfterInSeconds(cachedPollResponse);
+        opt.ifPresent(integer -> this.nextPollTime = BDExportUtils.evaluateNextAllowedPollTime(integer));
 
         BDExportUtils.extractProgress(cachedPollResponse)
-                .ifPresent(s -> logger.info("'Bulk Data Export' status: '" + s + "'"));
+                .ifPresent(s -> logger.info("'Bulk Data Export' status: '" + s + "', next polling at: " + nextPollTime));
 
         return cachedPollResponse;
+    }
+
+    protected long calculateSleepTimeInMs() {
+        long diff = (nextPollTime.getEpochSecond() * 1000) - System.currentTimeMillis();
+        return Math.max(10000, diff);
     }
 
     public URI getPollingUri() {
         return pollingUri;
     }
 
-    public void setRetryInterval(int seconds) {
-        this.retryAfterInSeconds = seconds;
+    public void setNextPollTime(Instant time) {
+        this.nextPollTime = time;
     }
 }

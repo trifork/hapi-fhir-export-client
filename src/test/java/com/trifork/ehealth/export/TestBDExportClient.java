@@ -1,8 +1,10 @@
 package com.trifork.ehealth.export;
 
 import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.rest.api.Constants;
-import org.apache.http.Header;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.client.HttpClient;
@@ -16,8 +18,6 @@ import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
-import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -29,7 +29,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static javolution.testing.TestContext.assertEquals;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
@@ -67,7 +66,8 @@ public class TestBDExportClient {
         operationOutcome.addIssue().setSeverity(OperationOutcome.IssueSeverity.INFORMATION);
 
         BasicHttpEntity entity = new BasicHttpEntity();
-        entity.setContent(new ByteArrayInputStream(fhirContext.newJsonParser().encodeResourceToString(operationOutcome).getBytes(StandardCharsets.UTF_8)));
+        IParser jsonParser = fhirContext.newJsonParser();
+        entity.setContent(new ByteArrayInputStream(jsonParser.encodeResourceToString(operationOutcome).getBytes(StandardCharsets.UTF_8)));
         doReturn(entity).when(initateResponse).getEntity();
         doReturn(new BasicStatusLine(
                 new ProtocolVersion("http", 1, 1),
@@ -82,13 +82,13 @@ public class TestBDExportClient {
 
         assertFalse(bdExportResponse.getResult().isPresent());
         assertTrue(bdExportResponse.getError().isPresent());
-        assertEquals(operationOutcome, bdExportResponse.getError().get());
+        assertEquals(jsonParser.encodeResourceToString(operationOutcome), jsonParser.encodeResourceToString(bdExportResponse.getError().get()));
 
         verify(httpClient, atMostOnce()).execute(argThat(exportUriMatcher));
     }
 
     @Test
-    void export_initiation_returns_a_future_in_progress() throws IOException, InterruptedException {
+    void export_initiation_returns_a_future_in_progress() throws IOException {
         configureExportInitiation();
         configurePollInProgress();
 

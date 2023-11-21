@@ -46,7 +46,7 @@ public class HapiFhirExportClientIT {
 
 
     @Test
-    void bulk_data_export_is_initiated() throws IOException, InterruptedException {
+    void bulk_data_export_is_initiated() throws IOException {
         HttpResponse response = exportClient.initiate(createExportRequest(baseUri));
 
         assertEquals(202, response.getStatusLine().getStatusCode());
