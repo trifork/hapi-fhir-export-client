@@ -32,7 +32,6 @@ public class BDExportFuture implements Future<BDExportResponse> {
     // Respect the retry-after, and cache the result, so we don't get rate limited in HAPI FHIR.
     private HttpResponse cachedPollResponse;
     private Instant nextPollTime = Instant.now();
-    private final int retryAfterInSeconds = 10;
 
     BDExportFuture(
             FhirContext fhirContext,
