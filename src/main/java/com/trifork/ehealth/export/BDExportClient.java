@@ -1,10 +1,14 @@
 package com.trifork.ehealth.export;
 
 import ca.uhn.fhir.context.FhirContext;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.hl7.fhir.r4.model.OperationOutcome;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -15,6 +19,8 @@ import static com.trifork.ehealth.export.BDExportUtils.extractContentLocation;
 public class BDExportClient {
     private final FhirContext fhirContext;
     private final HapiFhirExportClient exportClient;
+
+    private static final Logger logger = LoggerFactory.getLogger(BDExportClient.class);
 
     public BDExportClient(FhirContext fhirContext, HapiFhirExportClient exportClient) {
         this.fhirContext = fhirContext;
@@ -38,8 +44,20 @@ public class BDExportClient {
 
             return new BDExportFuture(fhirContext, exportClient, pollLocation);
         } else if (statusCode >= 400 && statusCode <= 599) {
-            OperationOutcome outcome = fhirContext.newJsonParser()
-                    .parseResource(OperationOutcome.class, response.getEntity().getContent());
+            OperationOutcome outcome = null;
+
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                try {
+                    InputStream content = entity.getContent();
+                    outcome = fhirContext.newJsonParser()
+                            .parseResource(OperationOutcome.class, content);
+                } catch (Exception e) {
+                    logger.error("Failed to parse operation outcome content.");
+                }
+            } else {
+                logger.info("Received empty response body, and status code: " + statusCode);
+            }
 
             BDExportResponse exportResponse = new BDExportResponse(request.getExportUri(), statusCode, null, outcome);
             return new ErrorFuture(exportResponse);
