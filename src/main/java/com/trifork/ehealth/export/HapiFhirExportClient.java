@@ -11,6 +11,7 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.protocol.BasicHttpContext;
 import org.hl7.fhir.r4.model.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,7 +103,7 @@ public class HapiFhirExportClient {
     private void processInterceptors(HttpRequest request) {
         for (HttpRequestInterceptor interceptor : interceptors) {
             try {
-                interceptor.process(request, null);
+                interceptor.process(request, new BasicHttpContext());
             } catch (HttpException | IOException e) {
                 throw new RuntimeException(e);
             }
