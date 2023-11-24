@@ -135,9 +135,14 @@ public class BDExportFuture implements Future<BDExportResponse> {
 
                 logger.info("'Bulk Data Export' finished");
 
-                if (entity.getContentLength() > 0) {
+                if (entity != null) {
                     InputStream content = entity.getContent();
-                    result = new ObjectMapper().readValue(content, BDExportResultResponse.class);
+                    try {
+                        result = new ObjectMapper().readValue(content, BDExportResultResponse.class);
+                    } catch (Exception e) {
+                        logger.error("Failed to parse response entity", e);
+                        // Empty content, so no results.
+                    }
                 }
 
                 return Optional.of(
@@ -149,7 +154,8 @@ public class BDExportFuture implements Future<BDExportResponse> {
                 logger.info("'Bulk Data Export' failed with status: " + statusCode);
 
                 HttpEntity entity = response.getEntity();
-                if (entity != null && entity.getContentLength() > 0) {
+
+                if (entity != null) {
                     InputStream content = entity.getContent();
                     operationOutcome = fhirContext.newJsonParser().parseResource(OperationOutcome.class, content);
                 }
