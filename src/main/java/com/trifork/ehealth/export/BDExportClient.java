@@ -72,8 +72,14 @@ public class BDExportClient {
      * @param contentLocation - URI of the status for the ongoing export
      * @return a future
      */
-    public Future<BDExportResponse> resumeExport(URI contentLocation) {
-        return new BDExportFuture(fhirContext, exportClient, contentLocation);
+    public Future<BDExportResponse> resumeExport(URI contentLocation) throws CancelledExportException {
+        BDExportFuture future = new BDExportFuture(fhirContext, exportClient, contentLocation);
+
+        if (future.isCancelled()) {
+            throw new CancelledExportException("Export has been cancelled, so cannot resume.");
+        }
+
+        return future;
     }
 
     public static class ErrorFuture implements Future<BDExportResponse> {
