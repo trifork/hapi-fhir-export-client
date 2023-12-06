@@ -2,6 +2,11 @@
 <project version="4">
   <component name="RemoteRepositoriesConfiguration">
     <remote-repository>
+      <option name="id" value="nexus-public" />
+      <option name="name" value="nexus-public" />
+      <option name="url" value="https://nexus3.trifork.com/repository/ehealth-maven-releases" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="nexus-snapshot" />
       <option name="name" value="nexus-snapshot" />
       <option name="url" value="https://nexus3.trifork.com/repository/ehealth-maven-snapshot" />

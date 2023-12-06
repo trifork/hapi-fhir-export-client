@@ -238,7 +238,7 @@ public class TestBDExportClient {
 
     private void configurePollHasBeenCancelled() {
         pollResponse.setStatusCode(Constants.STATUS_HTTP_202_ACCEPTED);
-        pollResponse.setHeader("x-progress", "CANCELLED");
+        pollResponse.setHeader("x-progress", "Build in progress - Status set to CANCELLED at 2023-11-24T09:15:42.295+00:00");
     }
 
     static class HttpRequestUrlMatcher implements ArgumentMatcher<HttpUriRequest> {
