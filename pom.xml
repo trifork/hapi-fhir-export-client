@@ -38,12 +38,16 @@
             <id>nexus</id>
             <url>https://nexus3.trifork.com/repository/ehealth-maven-releases</url>
         </repository>
+        <repository>
+            <id>nexus-public</id>
+            <url>https://nexus3.trifork.com/repository/ehealth-maven-releases</url>
+        </repository>
     </repositories>
 
     <distributionManagement>
         <repository>
             <id>nexus</id>
-            <url>https://nexus3.trifork.com/repository/ehealth-maven-releases</url>
+            <url>https://nexus3.trifork.com/repository/maven-ehealth-releases-public/</url>
         </repository>
     </distributionManagement>
 
