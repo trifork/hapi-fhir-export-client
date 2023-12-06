@@ -35,6 +35,7 @@ public class BDExportClientIT {
     private BDExportConverter exportResourceConverter;
     private HttpClient httpClient;
     private FhirContext fhirContext;
+    private HapiFhirExportClient hapiFhirExportClient;
 
     @BeforeAll
     void setup() {
@@ -42,7 +43,8 @@ public class BDExportClientIT {
         this.httpClient = HttpClientBuilder.create().build();
         this.baseUri = URI.create("http://localhost:8080/fhir");
         IGenericClient hapiFhirClient = fhirContext.newRestfulGenericClient(baseUri.toString());
-        this.exportClient = new BDExportClient(fhirContext, new HapiFhirExportClient(fhirContext, httpClient));
+        this.hapiFhirExportClient = new HapiFhirExportClient(fhirContext, httpClient);
+        this.exportClient = new BDExportClient(fhirContext, hapiFhirExportClient);
         this.exportResourceConverter = new BDExportConverter(hapiFhirClient);
 
         // Create test resources for export
@@ -84,5 +86,15 @@ public class BDExportClientIT {
         for (Condition condition : createdResources) {
             assertThat(content).contains(condition.getClinicalStatus().getCoding().get(0).getCode());
         }
+    }
+
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.MINUTES)
+    void bulk_data_export_is_cancelled() throws IOException {
+        BDExportFuture future = (BDExportFuture) exportClient.startExport(createExportRequest(baseUri));
+
+        hapiFhirExportClient.cancel(future.getPollingUri());
+
+        assertThrows(RuntimeException.class, future::get);
     }
 }

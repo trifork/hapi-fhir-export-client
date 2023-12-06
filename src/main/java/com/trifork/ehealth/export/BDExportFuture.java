@@ -163,6 +163,10 @@ public class BDExportFuture implements Future<BDExportResponse> {
                 return Optional.of(
                         new BDExportResponse(pollingUri, statusCode, null, operationOutcome)
                 );
+            } else if (isCancelled()) {
+                throw new RuntimeException("Bulk Data Export has been cancelled.");
+            } else {
+                throw new RuntimeException("Bulk Data Export did not finish for unknown reasons.");
             }
         }
 
