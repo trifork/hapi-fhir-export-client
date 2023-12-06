@@ -21,7 +21,7 @@ You can get the dependency through maven, by adding the following to your pom.xm
 <dependency>
     <groupId>com.trifork.ehealth</groupId>
     <artifactId>hapi-fhir-export-client</artifactId>
-    <version>2.2.2</version>
+    <version>2.2.3</version>
 </dependency>
 ```
 
