@@ -12,7 +12,7 @@ by adding the following:
 <dependency>
     <groupId>com.trifork.ehealth</groupId>
     <artifactId>hapi-fhir-export-client</artifactId>
-    <version>2.2.1</version>
+    <version>2.2.2</version>
 </dependency>
 ```
 
