@@ -5,8 +5,17 @@ and which is documented [here](https://hl7.org/fhir/uv/bulkdata/export/index.htm
 
 ## Maven dependency
 
-If you have access to the trifork nexus3 repository manager, you can get the dependency in maven,
-by adding the following:
+You can get the dependency through maven, by adding the following to your pom.xml:
+
+```xml
+<distributionManagement>
+    <repository>
+        <id>nexus</id>
+        <url>https://nexus3.trifork.com/repository/maven-ehealth-releases-public/</url>
+    </repository>
+</distributionManagement>
+```
+
 
 ```xml
 <dependency>
