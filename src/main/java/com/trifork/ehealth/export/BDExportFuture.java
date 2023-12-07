@@ -137,11 +137,17 @@ public class BDExportFuture implements Future<BDExportResponse> {
 
                 if (entity != null) {
                     InputStream content = entity.getContent();
-                    try {
-                        result = new ObjectMapper().readValue(content, BDExportResultResponse.class);
-                    } catch (Exception e) {
-                        logger.error("Failed to parse response entity", e);
-                        // Empty content, so no results.
+                    byte[] bytes = content.readAllBytes();
+
+                    logger.info("Reading " + bytes.length + " from 'Bulk Data Export'");
+
+                    if (bytes.length > 0) {
+                        try {
+                            result = new ObjectMapper().readValue(bytes, BDExportResultResponse.class);
+                        } catch (Exception e) {
+                            logger.error("Failed to parse response entity", e);
+                            // Empty content, so no results.
+                        }
                     }
                 }
 
