@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static ca.uhn.fhir.rest.api.Constants.STATUS_HTTP_202_ACCEPTED;
@@ -35,7 +34,7 @@ public class BDExportClient {
      * @throws IOException
      * @throws InterruptedException
      */
-    public Future<BDExportResponse> startExport(BDExportRequest request) throws IOException {
+    public IBDExportFuture startExport(BDExportRequest request) throws IOException {
         HttpResponse response = exportClient.initiate(request);
         int statusCode = response.getStatusLine().getStatusCode();
 
@@ -60,7 +59,7 @@ public class BDExportClient {
             }
 
             BDExportResponse exportResponse = new BDExportResponse(request.getExportUri(), statusCode, null, outcome);
-            return new ErrorFuture(exportResponse);
+            return new ErrorFuture(request.getExportUri(), exportResponse);
         } else {
             throw new RuntimeException("Failed to initiate export, server responded with: " + statusCode);
         }
@@ -72,7 +71,7 @@ public class BDExportClient {
      * @param contentLocation - URI of the status for the ongoing export
      * @return a future
      */
-    public Future<BDExportResponse> resumeExport(URI contentLocation) throws CancelledExportException {
+    public IBDExportFuture resumeExport(URI contentLocation) throws CancelledExportException {
         BDExportFuture future = new BDExportFuture(fhirContext, exportClient, contentLocation);
 
         if (future.isCancelled()) {
@@ -82,10 +81,12 @@ public class BDExportClient {
         return future;
     }
 
-    public static class ErrorFuture implements Future<BDExportResponse> {
+    public static class ErrorFuture implements IBDExportFuture {
+        private final URI exportUri;
         private final BDExportResponse response;
 
-        public ErrorFuture(BDExportResponse response) {
+        public ErrorFuture(URI exportUri, BDExportResponse response) {
+            this.exportUri = exportUri;
             this.response = response;
         }
 
@@ -111,7 +112,12 @@ public class BDExportClient {
 
         @Override
         public BDExportResponse get(long timeout, TimeUnit unit) {
-            return response;
+            return get();
+        }
+
+        @Override
+        public URI getPollingUri() {
+            return exportUri;
         }
     }
 }

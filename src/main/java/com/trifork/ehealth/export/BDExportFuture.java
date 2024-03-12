@@ -15,13 +15,12 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static ca.uhn.fhir.rest.api.Constants.STATUS_HTTP_202_ACCEPTED;
 
-public class BDExportFuture implements Future<BDExportResponse> {
+public class BDExportFuture implements IBDExportFuture {
     private static final Logger logger = LoggerFactory.getLogger(BDExportFuture.class);
     private static final int STATUS_HTTP_429_TOO_MANY_REQUESTS = 429;
 

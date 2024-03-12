@@ -47,7 +47,7 @@ Example of a request, following the examples given in the
 ```java
     ...
         
-    BDExportRequest request = 
+    IBDExportRequest request = 
         new BDExportRequest(URI.create("http://myserver.example.org/fhir/$export"))
             .setOutputFormat(Constants.CT_FHIR_NDJSON)
             .addType(ResourceType.MedicationRequest)
@@ -83,12 +83,12 @@ we can go ahead and initiate an export.
 ## Initiating an export
 
 Assuming the client has been configured, and a request has been made, a request can then be initiated, which returns a
-[BDExportFuture](src/main/java/com/trifork/ehealth/export/BDExportFuture.java), where the result will eventually be available.
+[IBDExportFuture](src/main/java/com/trifork/ehealth/export/IBDExportFuture.java), where the result will eventually be available.
 
 ```java
     ...
 
-        BDExportFuture future = exportClient.startExport(request);
+        IBDExportFuture future = exportClient.startExport(request);
         
     ...
 ```
@@ -102,12 +102,12 @@ Example:
 ```java
     ...
 
-        BDExportFuture future = exportClient.startExport(request);
+        IBDExportFuture future = exportClient.startExport(request);
         URI pollingUri = future.getPollingUri();
         
         ...
 
-        BDExportFuture futureForTheSameExport = exportClient.resumeExport(pollingUri)
+        IBDExportFuture futureForTheSameExport = exportClient.resumeExport(pollingUri)
     ...
 ```
 
@@ -118,7 +118,7 @@ links to FHIR Binary resources, that contain the output:
 ```java
     ...
 
-        BDExportFuture future = exportClient.startExport(request);
+        IBDExportFuture future = exportClient.startExport(request);
         BDExportResponse response = future.get();
         
         Optional<BDExportResultResponse> resultOpt = response.getResult();

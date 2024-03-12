@@ -91,7 +91,7 @@ public class BDExportClientIT {
     @Test
     @Timeout(value = 10, unit = TimeUnit.MINUTES)
     void bulk_data_export_is_cancelled() throws IOException {
-        BDExportFuture future = (BDExportFuture) exportClient.startExport(createExportRequest(baseUri));
+        IBDExportFuture future = exportClient.startExport(createExportRequest(baseUri));
 
         hapiFhirExportClient.cancel(future.getPollingUri());
 
