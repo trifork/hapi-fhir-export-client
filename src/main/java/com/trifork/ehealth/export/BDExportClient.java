@@ -25,7 +25,6 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static ca.uhn.fhir.rest.api.Constants.STATUS_HTTP_200_OK;
 import static ca.uhn.fhir.rest.api.Constants.STATUS_HTTP_202_ACCEPTED;
@@ -113,7 +112,7 @@ public class BDExportClient {
         processInterceptors(request);
 
         HttpResponse response = httpClient.execute(request);
-        if (BDExportUtils.extractStatusCode(response) != STATUS_HTTP_202_ACCEPTED){
+        if (BDExportUtils.extractStatusCode(response) != STATUS_HTTP_202_ACCEPTED) {
             throw new RuntimeException("Failed to cancel export: " + response.getStatusLine().getReasonPhrase());
         }
 
@@ -153,7 +152,7 @@ public class BDExportClient {
         if (statusCode == STATUS_HTTP_200_OK) {
             return new CompletedExportFuture(response, locationUri);
         } else if (statusCode == STATUS_HTTP_202_ACCEPTED) {
-            return new OngoingExportFuture(fhirContext, httpClient, locationUri);
+            return new OngoingExportFuture(this, locationUri);
         } else if (statusCode >= 400 && statusCode <= 599) {
             return new ErrorExportFuture(fhirContext, response, locationUri);
         } else {

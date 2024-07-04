@@ -1,18 +1,15 @@
 package com.trifork.ehealth.export.future;
 
-import ca.uhn.fhir.context.FhirContext;
 import com.trifork.ehealth.export.BDExportClient;
 import com.trifork.ehealth.export.BDExportUtils;
 import com.trifork.ehealth.export.response.BDExportResponse;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
 import java.time.Instant;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -22,7 +19,6 @@ import static ca.uhn.fhir.rest.api.Constants.STATUS_HTTP_202_ACCEPTED;
 import static com.trifork.ehealth.export.BDExportUtils.extractContentLocation;
 
 public class OngoingExportFuture implements BDExportFuture {
-    private final FhirContext fhirContext;
     private final BDExportClient exportClient;
 
     private BDExportFuture delegate;
@@ -34,10 +30,9 @@ public class OngoingExportFuture implements BDExportFuture {
     private final Logger logger = LoggerFactory.getLogger(OngoingExportFuture.class);
     private static final int STATUS_HTTP_429_TOO_MANY_REQUESTS = 429;
 
-    public OngoingExportFuture(FhirContext fhirContext, HttpClient httpClient, URI locationUri) {
-        this.fhirContext = fhirContext;
+    public OngoingExportFuture(BDExportClient exportClient, URI locationUri) {
         this.locationUri = locationUri;
-        this.exportClient = new BDExportClient(fhirContext, httpClient);
+        this.exportClient = exportClient;
 
         try {
             this.lastResponse = exportClient.poll(locationUri);
@@ -154,7 +149,7 @@ public class OngoingExportFuture implements BDExportFuture {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        } else if(isLastResponseDone()) {
+        } else if (isLastResponseDone()) {
             this.delegate = exportClient.createFuture(lastResponse, locationUri);
         }
     }
