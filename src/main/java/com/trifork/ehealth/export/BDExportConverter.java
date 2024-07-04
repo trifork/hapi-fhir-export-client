@@ -1,6 +1,9 @@
 package com.trifork.ehealth.export;
 
+import ca.uhn.fhir.jpa.bulk.export.model.BulkExportResponseJson;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
+import com.trifork.ehealth.export.response.BDExportResourceResult;
+import com.trifork.ehealth.export.response.BDExportResultResponse;
 import org.hl7.fhir.r4.model.Binary;
 
 import java.util.Collections;
@@ -24,7 +27,7 @@ public class BDExportConverter {
                 result.isRequiresAccessToken(),
                 convertToResourceItems(result.getOutput()),
                 convertToResourceItems(result.getError()),
-                result.getExtension()
+                result.getMessage()
         );
     }
 

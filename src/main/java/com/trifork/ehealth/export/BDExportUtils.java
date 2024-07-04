@@ -42,7 +42,17 @@ public class BDExportUtils {
         return Instant.now().plus(retryAfterInSeconds, ChronoUnit.SECONDS);
     }
 
-    public static URI extractContentLocation(HttpResponse response) {
-        return URI.create(response.getHeaders("content-location")[0].getValue());
+    public static Optional<URI> extractContentLocation(HttpResponse response) {
+        if (response.containsHeader("content-location")) {
+            return Optional.of(response.getHeaders("content-location")[0])
+                    .map(Header::getValue)
+                    .map(URI::create);
+        }
+
+        return Optional.empty();
+    }
+
+    public static int extractStatusCode(HttpResponse response) {
+        return response.getStatusLine().getStatusCode();
     }
 }

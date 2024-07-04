@@ -1,35 +1,35 @@
-package com.trifork.ehealth.export;
+package com.trifork.ehealth.export.response;
 
 import org.hl7.fhir.r4.model.Binary;
 
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public class BDExportResourceResult {
-    private String transactionTime;
+    private Date transactionTime;
     private String request;
     private boolean requiresAccessToken;
     private List<ResourceItem> output;
     private List<ResourceItem> error;
-    private Map<String, Object> extension;
+    private String message;
 
     public BDExportResourceResult(
-            String transactionTime,
+            Date transactionTime,
             String request,
             boolean requiresAccessToken,
             List<ResourceItem> output,
             List<ResourceItem> error,
-            Map<String, Object> extension
+            String message
     ) {
         this.transactionTime = transactionTime;
         this.request = request;
         this.requiresAccessToken = requiresAccessToken;
         this.output = output;
         this.error = error;
-        this.extension = extension;
+        this.message = message;
     }
 
-    public String getTransactionTime() {
+    public Date getTransactionTime() {
         return transactionTime;
     }
 
@@ -49,8 +49,8 @@ public class BDExportResourceResult {
         return error;
     }
 
-    public Map<String, Object> getExtension() {
-        return extension;
+    public String getMessage() {
+        return message;
     }
 
     public static class ResourceItem {

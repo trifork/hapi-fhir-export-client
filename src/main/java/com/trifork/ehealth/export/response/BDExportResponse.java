@@ -1,4 +1,4 @@
-package com.trifork.ehealth.export;
+package com.trifork.ehealth.export.response;
 
 import org.hl7.fhir.r4.model.OperationOutcome;
 

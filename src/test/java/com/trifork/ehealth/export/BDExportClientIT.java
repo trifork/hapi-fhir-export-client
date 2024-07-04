@@ -4,11 +4,13 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.api.Constants;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
+import com.trifork.ehealth.export.future.BDExportFuture;
+import com.trifork.ehealth.export.response.BDExportResourceResult;
+import com.trifork.ehealth.export.response.BDExportResponse;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.hl7.fhir.r4.model.Binary;
-import org.hl7.fhir.r4.model.Condition;
-import org.hl7.fhir.r4.model.ResourceType;
+import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.codesystems.ConditionClinical;
 import org.junit.jupiter.api.*;
 
@@ -21,8 +23,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import static com.trifork.ehealth.export.HapiFhirExportClientIT.createCondition;
-import static com.trifork.ehealth.export.HapiFhirExportClientIT.createExportRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,7 +35,6 @@ public class BDExportClientIT {
     private BDExportConverter exportResourceConverter;
     private HttpClient httpClient;
     private FhirContext fhirContext;
-    private HapiFhirExportClient hapiFhirExportClient;
 
     @BeforeAll
     void setup() {
@@ -43,8 +42,7 @@ public class BDExportClientIT {
         this.httpClient = HttpClientBuilder.create().build();
         this.baseUri = URI.create("http://localhost:8080/fhir");
         IGenericClient hapiFhirClient = fhirContext.newRestfulGenericClient(baseUri.toString());
-        this.hapiFhirExportClient = new HapiFhirExportClient(fhirContext, httpClient);
-        this.exportClient = new BDExportClient(fhirContext, hapiFhirExportClient);
+        this.exportClient = new BDExportClient(fhirContext, httpClient);
         this.exportResourceConverter = new BDExportConverter(hapiFhirClient);
 
         // Create test resources for export
@@ -57,7 +55,7 @@ public class BDExportClientIT {
     @Test
     @Timeout(value = 10, unit = TimeUnit.MINUTES)
     void bulk_data_export_is_successful() throws IOException, InterruptedException, ExecutionException {
-        Future<BDExportResponse> future = exportClient.startExport(createExportRequest(baseUri));
+        Future<BDExportResponse> future = exportClient.initiate(createExportRequest(baseUri));
 
         assertFalse(future.isCancelled());
         assertFalse(future.isDone());
@@ -89,12 +87,49 @@ public class BDExportClientIT {
     }
 
     @Test
-    @Timeout(value = 10, unit = TimeUnit.MINUTES)
-    void bulk_data_export_is_cancelled() throws IOException {
-        IBDExportFuture future = exportClient.startExport(createExportRequest(baseUri));
+    @Timeout(value = 2, unit = TimeUnit.MINUTES)
+    void ongoing_bulk_data_export_can_be_cancelled() throws IOException {
+        BDExportFuture future = exportClient.initiate(createExportRequest(baseUri));
 
-        hapiFhirExportClient.cancel(future.getPollingUri());
+        assertFalse(future.isCancelled());
 
-        assertThrows(RuntimeException.class, future::get);
+        future.cancel(true);
+
+        assertTrue(future.isCancelled());
+
+        assertThrows(InterruptedException.class, future::get);
+
+        // Wait until it is truely cancelled, so we don't break the next test.
+        // Apparently initiating a new one, while cancelling of the old is in progress, this causes the old to be reused.
+        HttpResponse response = exportClient.poll(future.getLocationURI());
+
+        while (!BDExportUtils.isCancelled(response)) {
+            try {
+                Thread.sleep(1000);
+                response = exportClient.poll(future.getLocationURI());
+            } catch (InterruptedException e) {}
+        }
+
+    }
+
+    @Test
+    void ongoing_bulk_data_export_can_be_polled() throws IOException {
+        BDExportFuture future = exportClient.initiate(createExportRequest(baseUri));
+        HttpResponse pollResponse = exportClient.poll(future.getLocationURI());
+
+        assertEquals(202, pollResponse.getStatusLine().getStatusCode());
+    }
+
+    public static BDExportRequest createExportRequest(URI baseUri) {
+        return BDExportRequest.createSystemExportRequest(baseUri).addType(ResourceType.Condition);
+    }
+
+    public static Condition createCondition(ConditionClinical conditionClinical) {
+        return new Condition()
+                .setClinicalStatus(
+                        new CodeableConcept(
+                                new Coding(conditionClinical.getSystem(), conditionClinical.toCode(), conditionClinical.getDisplay())
+                        )
+                );
     }
 }
