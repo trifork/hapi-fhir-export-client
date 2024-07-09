@@ -2,11 +2,10 @@ package com.trifork.ehealth.export.response;
 
 import org.hl7.fhir.r4.model.Binary;
 
-import java.util.Date;
 import java.util.List;
 
 public class BDExportResourceResult {
-    private Date transactionTime;
+    private String transactionTime;
     private String request;
     private boolean requiresAccessToken;
     private List<ResourceItem> output;
@@ -14,7 +13,7 @@ public class BDExportResourceResult {
     private String message;
 
     public BDExportResourceResult(
-            Date transactionTime,
+            String transactionTime,
             String request,
             boolean requiresAccessToken,
             List<ResourceItem> output,
@@ -29,7 +28,7 @@ public class BDExportResourceResult {
         this.message = message;
     }
 
-    public Date getTransactionTime() {
+    public String getTransactionTime() {
         return transactionTime;
     }
 

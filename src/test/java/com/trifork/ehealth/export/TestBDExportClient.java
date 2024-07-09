@@ -1,7 +1,6 @@
 package com.trifork.ehealth.export;
 
 import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.jpa.bulk.export.model.BulkExportResponseJson;
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.rest.api.Constants;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -28,7 +27,6 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -117,15 +115,14 @@ public class TestBDExportClient {
         assertFalse(future.isDone());
         assertFalse(future.isCancelled());
 
-        BulkExportResponseJson.Output output = new BulkExportResponseJson.Output();
-        output.setType("Condition");
-        output.setUrl("url");
-        BulkExportResponseJson responseJson = new BulkExportResponseJson();
-        responseJson.setTransactionTime(new Date());
-        responseJson.setRequest("http://localhost:8080/fhir/$export");
-        responseJson.setRequiresAccessToken(false);
-        responseJson.getOutput().add(output);
-        var expectedResult = new BDExportResultResponse(responseJson);
+        BDExportResultResponse expectedResult = new BDExportResultResponse(
+                "1337",
+                exportUri.toString(),
+                false,
+                Collections.singletonList(new BDExportResultResponse.OutputItem("Binary", "url")),
+                Collections.emptyList(),
+                ""
+        );
 
         configurePollHasFinished(expectedResult);
 
@@ -223,13 +220,7 @@ public class TestBDExportClient {
         pollResponse.setStatusCode(Constants.STATUS_HTTP_200_OK);
         pollResponse.setHeader("Content-Type", Constants.CT_JSON);
         BasicHttpEntity httpEntity = new BasicHttpEntity();
-        String body = new ObjectMapper().writeValueAsString(Map.of(
-                "transactionTime", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").format(expectedResult.getTransactionTime()),
-                "request", expectedResult.getRequest(),
-                "requiresAccessToken", expectedResult.isRequiresAccessToken(),
-                "output", expectedResult.getOutput(),
-                "error", Collections.emptyList()
-        ));
+        String body = new ObjectMapper().writeValueAsString(expectedResult);
         byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
         httpEntity.setContent(new ByteArrayInputStream(bytes));
         httpEntity.setContentLength(bytes.length);

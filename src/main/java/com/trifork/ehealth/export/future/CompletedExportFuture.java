@@ -1,6 +1,5 @@
 package com.trifork.ehealth.export.future;
 
-import ca.uhn.fhir.jpa.bulk.export.model.BulkExportResponseJson;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trifork.ehealth.export.response.BDExportResponse;
 import com.trifork.ehealth.export.response.BDExportResultResponse;
@@ -54,7 +53,7 @@ public class CompletedExportFuture implements BDExportFuture {
 
     private BDExportResponse createResponse() {
         HttpEntity entity = response.getEntity();
-        BulkExportResponseJson result = null;
+        BDExportResultResponse result = null;
 
         if (entity != null) {
             try (InputStream content = entity.getContent()) {
@@ -64,7 +63,7 @@ public class CompletedExportFuture implements BDExportFuture {
 
                 if (bytes.length > 0) {
                     try {
-                        result = new ObjectMapper().readValue(bytes, BulkExportResponseJson.class);
+                        result = new ObjectMapper().readValue(bytes, BDExportResultResponse.class);
                     } catch (Exception e) {
                         logger.error("Failed to parse response entity", e);
                         // Empty content, so no results.
@@ -76,7 +75,7 @@ public class CompletedExportFuture implements BDExportFuture {
         }
 
         int statusCode = response.getStatusLine().getStatusCode();
-        return new BDExportResponse(getLocationURI(), statusCode, new BDExportResultResponse(result), null);
+        return new BDExportResponse(getLocationURI(), statusCode, result, null);
     }
 
     @Override
