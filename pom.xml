@@ -4,7 +4,7 @@
 
     <groupId>com.trifork.ehealth</groupId>
     <artifactId>hapi-fhir-export-client</artifactId>
-    <version>3.0.1-SNAPSHOT</version>
+    <version>3.0.2</version>
 
     <name>HAPI FHIR: Bulk Data Export client</name>
     <description>Client to perform a bulk data export</description>
