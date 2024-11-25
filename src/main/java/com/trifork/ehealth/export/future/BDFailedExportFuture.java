@@ -1,6 +1,7 @@
 package com.trifork.ehealth.export.future;
 
 import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.DataFormatException;
 import com.trifork.ehealth.export.response.BDExportResponse;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -11,17 +12,16 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
-public class ErrorExportFuture implements BDExportFuture {
+public class BDFailedExportFuture implements BDExportFuture {
     private final FhirContext fhirContext;
-    private final HttpResponse response;
-    private final URI locationUri;
+    private final int statusCode;
+    private final String body;
 
-    public ErrorExportFuture(FhirContext fhirContext, HttpResponse response, URI locationUri) {
+    public BDFailedExportFuture(FhirContext fhirContext, int statusCode, String body) {
         this.fhirContext = fhirContext;
-        this.response = response;
-        this.locationUri = locationUri;
+        this.statusCode = statusCode;
+        this.body = body;
 
-        int statusCode = response.getStatusLine().getStatusCode();
         assert statusCode >= 400 && statusCode <= 599;
     }
 
@@ -53,22 +53,15 @@ public class ErrorExportFuture implements BDExportFuture {
     private BDExportResponse createErrorResponse() {
         OperationOutcome operationOutcome = null;
 
-        HttpEntity entity = response.getEntity();
-
-        if (entity != null) {
-            try(InputStream content = entity.getContent()) {
-                operationOutcome = fhirContext.newJsonParser().parseResource(OperationOutcome.class, content);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        if (body != null) {
+            operationOutcome = fhirContext.newJsonParser().parseResource(OperationOutcome.class, body);
         }
 
-        int statusCode = response.getStatusLine().getStatusCode();
         return new BDExportResponse(getLocationURI(), statusCode, null, operationOutcome);
     }
 
     @Override
     public URI getLocationURI() {
-        return locationUri;
+        return null;
     }
 }

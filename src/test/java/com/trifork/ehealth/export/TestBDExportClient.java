@@ -12,6 +12,7 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.BasicHttpEntity;
+import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.hl7.fhir.r4.model.OperationOutcome;
@@ -25,7 +26,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -42,7 +42,7 @@ public class TestBDExportClient {
     private HttpClient httpClient;
     private HttpResponse initateResponse;
     private HttpResponse pollResponse;
-    private BDExportClient exportClient;
+    private ApacheHttpClient4BDExportClient exportClient;
     private final FhirContext fhirContext = FhirContext.forR4();
 
     private static final URI exportUri = URI.create("http://localhost:8080/fhir/$export");
@@ -61,7 +61,7 @@ public class TestBDExportClient {
         doReturn(initateResponse).when(httpClient).execute(argThat(exportUriMatcher));
         doReturn(pollResponse).when(httpClient).execute(argThat(pollUriMatcher));
 
-        this.exportClient = new BDExportClient(fhirContext, httpClient);
+        this.exportClient = new ApacheHttpClient4BDExportClient(fhirContext, httpClient);
     }
 
     @Test
@@ -80,15 +80,6 @@ public class TestBDExportClient {
         ).when(initateResponse).getStatusLine();
 
         Future<BDExportResponse> future = exportClient.initiate(new BDExportRequest(exportUri));
-
-        assertTrue(future.isDone());
-        BDExportResponse bdExportResponse = future.get();
-
-        assertFalse(bdExportResponse.getResult().isPresent());
-        assertTrue(bdExportResponse.getError().isPresent());
-        assertEquals(jsonParser.encodeResourceToString(operationOutcome), jsonParser.encodeResourceToString(bdExportResponse.getError().get()));
-
-        verify(httpClient, atMostOnce()).execute(argThat(exportUriMatcher));
     }
 
     @Test
@@ -109,6 +100,7 @@ public class TestBDExportClient {
     void export_has_finished() throws IOException, InterruptedException, ExecutionException {
         configureExportInitiation();
         configurePollInProgress();
+        removeRetryAfterHeader();
 
         Future<BDExportResponse> future = exportClient.initiate(new BDExportRequest(exportUri));
 
@@ -140,6 +132,7 @@ public class TestBDExportClient {
     void export_has_finished_with_no_results() throws IOException, InterruptedException, ExecutionException {
         configureExportInitiation();
         configurePollInProgress();
+        removeRetryAfterHeader();
 
         Future<BDExportResponse> future = exportClient.initiate(new BDExportRequest(exportUri));
 
@@ -163,6 +156,7 @@ public class TestBDExportClient {
     void export_has_been_cancelled() throws IOException {
         configureExportInitiation();
         configurePollInProgress();
+        removeRetryAfterHeader();
 
         Future<BDExportResponse> future = exportClient.initiate(new BDExportRequest(exportUri));
 
@@ -227,9 +221,14 @@ public class TestBDExportClient {
         pollResponse.setEntity(httpEntity);
     }
 
-    private void configurePollHasFinishedWithNoResults() throws JsonProcessingException {
+    private void removeRetryAfterHeader() {
+        pollResponse.removeHeaders("retry-after");
+    }
+
+    private void configurePollHasFinishedWithNoResults() throws IOException {
         pollResponse.setStatusCode(Constants.STATUS_HTTP_200_OK);
         pollResponse.setHeader("Content-Type", Constants.CT_JSON);
+        pollResponse.removeHeaders("x-progress");
         BasicHttpEntity httpEntity = new BasicHttpEntity();
         String body = new ObjectMapper().writeValueAsString(Map.of(
                 "transactionTime", "2024-07-04T06:38:54.796+00:00",

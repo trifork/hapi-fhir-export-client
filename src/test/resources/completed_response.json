@@ -1,0 +1,13 @@
+{
+  "transactionTime": "2021-01-01T00:00:00Z",
+  "request": "https://example.com/fhir/Patient/$export?_type=Patient,Observation,Binary",
+  "requiresAccessToken": true,
+  "output": [
+    { "type": "Patient", "url": "https://example.com/output/patient_file_1.ndjson" },
+    { "type": "Observation", "url": "https://example.com/output/observation_file_1.ndjson" },
+    { "type": "Binary", "url": "https://example.com/output/binary_file_1.ndjson" }
+  ],
+  "error": [
+    { "type": "OperationOutcome", "url": "https://example.com/output/err_file_1.ndjson" }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "processing",
+      "details": {
+        "text": "An internal timeout has occurred"
+      }
+    }
+  ]
+}

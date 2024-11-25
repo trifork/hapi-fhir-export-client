@@ -7,9 +7,9 @@ import ca.uhn.fhir.rest.client.api.IGenericClient;
 import com.trifork.ehealth.export.future.BDExportFuture;
 import com.trifork.ehealth.export.response.BDExportResourceResult;
 import com.trifork.ehealth.export.response.BDExportResponse;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import com.trifork.ehealth.export.response.BDPollResponse;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.codesystems.ConditionClinical;
 import org.junit.jupiter.api.*;
@@ -20,7 +20,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,10 +27,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class BDExportClientIT {
+public class ApacheHttp5BDExportClientIT {
     private URI baseUri;
     private final List<Condition> createdResources = new ArrayList<>();
-    private BDExportClient exportClient;
+    private ApacheHttpClient5BDExportClient exportClient;
     private BDExportConverter exportResourceConverter;
     private HttpClient httpClient;
     private FhirContext fhirContext;
@@ -42,7 +41,7 @@ public class BDExportClientIT {
         this.httpClient = HttpClientBuilder.create().build();
         this.baseUri = URI.create("http://localhost:8080/fhir");
         IGenericClient hapiFhirClient = fhirContext.newRestfulGenericClient(baseUri.toString());
-        this.exportClient = new BDExportClient(fhirContext, httpClient);
+        this.exportClient = new ApacheHttpClient5BDExportClient(fhirContext, httpClient);
         this.exportResourceConverter = new BDExportConverter(hapiFhirClient);
 
         // Create test resources for export
@@ -55,7 +54,7 @@ public class BDExportClientIT {
     @Test
     @Timeout(value = 10, unit = TimeUnit.MINUTES)
     void bulk_data_export_is_successful() throws IOException, InterruptedException, ExecutionException {
-        Future<BDExportResponse> future = exportClient.initiate(createExportRequest(baseUri));
+        BDExportFuture future = exportClient.initiate(createExportRequest(baseUri));
 
         assertFalse(future.isCancelled());
         assertFalse(future.isDone());
@@ -101,13 +100,14 @@ public class BDExportClientIT {
 
         // Wait until it is truely cancelled, so we don't break the next test.
         // Apparently initiating a new one, while cancelling of the old is in progress, this causes the old to be reused.
-        HttpResponse response = exportClient.poll(future.getLocationURI());
+        BDPollResponse response = exportClient.poll(future.getLocationURI());
 
-        while (!BDExportUtils.isCancelled(response)) {
+        while (!response.isCancelled()) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(5000);
                 response = exportClient.poll(future.getLocationURI());
-            } catch (InterruptedException e) {}
+            } catch (InterruptedException e) {
+            }
         }
 
     }
@@ -115,9 +115,9 @@ public class BDExportClientIT {
     @Test
     void ongoing_bulk_data_export_can_be_polled() throws IOException {
         BDExportFuture future = exportClient.initiate(createExportRequest(baseUri));
-        HttpResponse pollResponse = exportClient.poll(future.getLocationURI());
+        BDPollResponse pollResponse = exportClient.poll(future.getLocationURI());
 
-        assertEquals(202, pollResponse.getStatusLine().getStatusCode());
+        assertEquals(202, pollResponse.getStatusCode());
     }
 
     public static BDExportRequest createExportRequest(URI baseUri) {

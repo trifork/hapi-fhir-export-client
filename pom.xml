@@ -93,6 +93,12 @@
             <artifactId>log4j-slf4j2-impl</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+            <version>5.4.1</version>
+        </dependency>
+
         <!-- HAPI FHIR -->
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
@@ -133,6 +139,12 @@
             <artifactId>mockito-junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>24.1.0</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -144,6 +156,8 @@
                 <version>3.13.0</version>
                 <configuration>
                     <release>11</release>
+                    <source>15</source>
+                    <target>15</target>
                 </configuration>
             </plugin>
             <plugin>
