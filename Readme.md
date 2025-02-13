@@ -48,7 +48,7 @@ Example of a request, following the examples given in the
     ...
         
     IBDExportRequest request = 
-        new BDExportRequest(URI.create("http://myserver.example.org/fhir/$export"))
+        new ApacheHttpClient4BDExportClient(URI.create("http://myserver.example.org/fhir/$export"))
             .setOutputFormat(Constants.CT_FHIR_NDJSON)
             .addType(ResourceType.MedicationRequest)
             .addType(ResourceType.Condition)
