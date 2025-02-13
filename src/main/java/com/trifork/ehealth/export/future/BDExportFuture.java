@@ -12,4 +12,11 @@ public interface BDExportFuture extends Future<BDExportResponse> {
      * @return
      */
     URI getLocationURI();
+
+    /**
+     * Set the polling interval manually, and ignore the 'retry-after' header, returned by the bulk export.
+     *
+     * @param millis polling interval in milliseconds
+     */
+    void setPollingInterval(Integer millis);
 }

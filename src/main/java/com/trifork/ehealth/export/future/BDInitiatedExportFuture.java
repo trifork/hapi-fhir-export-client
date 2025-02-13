@@ -24,6 +24,7 @@ public class BDInitiatedExportFuture implements BDExportFuture {
     private CountDownLatch countDownLatch = new CountDownLatch(1);
 
     private final Logger logger = LoggerFactory.getLogger(BDInitiatedExportFuture.class);
+    private Integer sleepTimeOverrideInMs = null;
 
     public BDInitiatedExportFuture(BDExportClient exportClient, URI locationUri) {
         this.exportClient = exportClient;
@@ -32,6 +33,11 @@ public class BDInitiatedExportFuture implements BDExportFuture {
 
     public URI getLocationURI() {
         return locationUri;
+    }
+
+    @Override
+    public void setPollingInterval(Integer millis) {
+        this.sleepTimeOverrideInMs = millis;
     }
 
     @Override
@@ -138,12 +144,12 @@ public class BDInitiatedExportFuture implements BDExportFuture {
     }
 
     /**
-     * Get the time to sleep before polling again, with minimum being 10 seconds.
+     * Get the time to sleep before polling again, with minimum being 10 seconds, of no override was set.
      *
      * @return milliseconds to sleep
      */
     protected Integer getSleepTimeInMs() {
-        return lastPollResponse.getRetryAfterInSecondsOpt().map(seconds -> seconds * 1000)
-                .orElse(10000);
+        return sleepTimeOverrideInMs != null ? sleepTimeOverrideInMs :
+                lastPollResponse.getRetryAfterInSecondsOpt().map(seconds -> seconds * 1000).orElse(10000);
     }
 }

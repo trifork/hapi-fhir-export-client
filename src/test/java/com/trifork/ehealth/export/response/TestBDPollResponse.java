@@ -8,7 +8,6 @@ import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
-import java.net.URI;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
@@ -23,7 +22,7 @@ public class TestBDPollResponse {
 
     @Test
     void progress_header_is_present() {
-        BDPollResponse response = new BDPollResponse(fhirContext,202, Map.of("x-progress", "50% completed"), null);
+        BDPollResponse response = new BDPollResponse(fhirContext, 202, Map.of("x-progress", "50% completed"), null);
 
         Optional<String> progress = response.getProgressHeader();
 
@@ -33,7 +32,7 @@ public class TestBDPollResponse {
 
     @Test
     void progress_header_is_absent() {
-        BDPollResponse response = new BDPollResponse(fhirContext,202, Map.of(), null);
+        BDPollResponse response = new BDPollResponse(fhirContext, 202, Map.of(), null);
 
         Optional<String> progress = response.getProgressHeader();
 
@@ -42,21 +41,21 @@ public class TestBDPollResponse {
 
     @Test
     void is_cancelled_when_progress_contains_cancelled() {
-        BDPollResponse response = new BDPollResponse(fhirContext,202, Map.of("x-progress", "CANCELLED"), null);
+        BDPollResponse response = new BDPollResponse(fhirContext, 202, Map.of("x-progress", "CANCELLED"), null);
 
         assertTrue(response.isCancelled());
     }
 
     @Test
     void is_not_cancelled_when_progress_does_not_contain_cancelled() {
-        BDPollResponse response = new BDPollResponse(fhirContext,202, Map.of("x-progress", "50% completed"), null);
+        BDPollResponse response = new BDPollResponse(fhirContext, 202, Map.of("x-progress", "50% completed"), null);
 
         assertFalse(response.isCancelled());
     }
 
     @Test
     void retry_after_in_seconds_is_parsed_correctly() {
-        BDPollResponse response = new BDPollResponse(fhirContext,202, Map.of("retry-after", "30"), null);
+        BDPollResponse response = new BDPollResponse(fhirContext, 202, Map.of("retry-after", "30"), null);
 
         Optional<Integer> retryAfter = response.getRetryAfterInSecondsOpt();
 
@@ -66,7 +65,7 @@ public class TestBDPollResponse {
 
     @Test
     void retry_after_in_seconds_is_empty_when_not_a_number() {
-        BDPollResponse response = new BDPollResponse(fhirContext,202, Map.of("retry-after", "invalid-number"), null);
+        BDPollResponse response = new BDPollResponse(fhirContext, 202, Map.of("retry-after", "invalid-number"), null);
 
         Optional<Integer> retryAfter = response.getRetryAfterInSecondsOpt();
 
@@ -75,7 +74,7 @@ public class TestBDPollResponse {
 
     @Test
     void next_allowed_poll_time_is_calculated_correctly_with_retry_after() {
-        BDPollResponse response = new BDPollResponse(fhirContext,202, Map.of("retry-after", "30"), null);
+        BDPollResponse response = new BDPollResponse(fhirContext, 202, Map.of("retry-after", "30"), null);
 
         Instant now = Instant.now();
         Instant nextAllowedPollTime = response.getNextAllowedPollTime().get();
@@ -87,7 +86,7 @@ public class TestBDPollResponse {
     @Test
     void parses_completed_response_into_result() throws Exception {
         InputStream inputStream = loadResourceAsStream("completed_response.json");
-        BDPollResponse response = new BDPollResponse(fhirContext,200, Map.of(), inputStream);
+        BDPollResponse response = new BDPollResponse(fhirContext, 200, Map.of(), inputStream);
 
         Optional<BDExportResultResponse> resultOpt = response.getResultOpt();
 
@@ -108,7 +107,7 @@ public class TestBDPollResponse {
     @Test
     void parses_error_response_into_operation_outcome() throws Exception {
         InputStream inputStream = loadResourceAsStream("error_response.json");
-        BDPollResponse response = new BDPollResponse(fhirContext,500, Map.of(), inputStream);
+        BDPollResponse response = new BDPollResponse(fhirContext, 500, Map.of(), inputStream);
 
         Optional<OperationOutcome> errorOpt = response.getErrorOpt();
 

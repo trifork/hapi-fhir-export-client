@@ -64,4 +64,7 @@ public class BDFailedExportFuture implements BDExportFuture {
     public URI getLocationURI() {
         return null;
     }
+
+    @Override
+    public void setPollingInterval(Integer millis) {}
 }
