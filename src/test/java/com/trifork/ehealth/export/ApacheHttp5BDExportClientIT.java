@@ -55,6 +55,7 @@ public class ApacheHttp5BDExportClientIT {
     @Timeout(value = 10, unit = TimeUnit.MINUTES)
     void bulk_data_export_is_successful() throws IOException, InterruptedException, ExecutionException {
         BDExportFuture future = exportClient.initiate(createExportRequest(baseUri));
+        future.setPollingInterval(10000);
 
         assertFalse(future.isCancelled());
         assertFalse(future.isDone());
