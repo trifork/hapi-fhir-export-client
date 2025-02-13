@@ -4,7 +4,9 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.IQueryParameterType;
 import org.hl7.fhir.r4.model.ResourceType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class BDExportTypeFilter {

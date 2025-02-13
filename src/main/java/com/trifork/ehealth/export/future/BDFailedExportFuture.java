@@ -1,14 +1,9 @@
 package com.trifork.ehealth.export.future;
 
 import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.parser.DataFormatException;
 import com.trifork.ehealth.export.response.BDExportResponse;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.hl7.fhir.r4.model.OperationOutcome;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
