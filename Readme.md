@@ -21,7 +21,7 @@ You can get the dependency through maven, by adding the following to your pom.xm
 <dependency>
     <groupId>com.trifork.ehealth</groupId>
     <artifactId>hapi-fhir-export-client</artifactId>
-    <version>4.1.0</version>
+    <version>4.1.1</version>
 </dependency>
 ```
 
@@ -53,6 +53,7 @@ Example of a request, following the examples given in the
             .addType(ResourceType.MedicationRequest)
             .addType(ResourceType.Condition)
             .setSince(new InstantType(new GregorianCalendar(2023, Calendar.OCTOBER, 27)))
+            .setUntil(new InstantType(new GregorianCalendar(2023, Calendar.NOVEMBER, 26)))
             .addTypeFilter(
                 new BDExportTypeFilter(
                     ResourceType.MedicationRequest,
