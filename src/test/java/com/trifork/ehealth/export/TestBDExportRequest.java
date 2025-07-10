@@ -79,9 +79,11 @@ public class TestBDExportRequest {
         );
 
         Date date_2023_10_20 = new Date(1697799741000L);
+        Date date_2024_01_01 = new Date(1704099945000L);
         Parameters parameters = BDExportRequest.createSystemExportRequest(baseUri)
                 .setOutputFormat(Constants.CT_APP_NDJSON)
                 .setSince(new InstantType(date_2023_10_20, TemporalPrecisionEnum.DAY))
+                .setUntil(new InstantType(date_2024_01_01, TemporalPrecisionEnum.DAY))
                 .addType(ResourceType.Condition)
                 .addType(ResourceType.MedicationRequest)
                 .addTypeFilter(typeFilter1)
@@ -90,6 +92,7 @@ public class TestBDExportRequest {
 
         assertEquals(Constants.CT_APP_NDJSON, parameters.getParameterValue("_outputFormat").primitiveValue());
         assertEquals("2023-10-20", parameters.getParameterValue("_since").primitiveValue());
+        assertEquals("2024-01-01", parameters.getParameterValue("_until").primitiveValue());
         assertEquals("Condition,MedicationRequest", parameters.getParameterValue("_type").primitiveValue());
         assertEquals(
                 "Condition?clinicalStatus=active,Condition?category=problem-list-item",

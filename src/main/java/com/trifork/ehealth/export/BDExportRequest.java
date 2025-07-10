@@ -20,6 +20,7 @@ public class BDExportRequest {
     private final URI exportUri;
     private String outputFormat = Constants.CT_FHIR_NDJSON;
     private InstantType since;
+    private InstantType until;
     private final List<ResourceType> types = new ArrayList<>();
     private final List<BDExportTypeFilter> typeFilters = new ArrayList<>();
 
@@ -38,6 +39,13 @@ public class BDExportRequest {
         Objects.requireNonNull(since);
 
         this.since = since;
+        return this;
+    }
+
+    public BDExportRequest setUntil(InstantType until) {
+        Objects.requireNonNull(until);
+
+        this.until = until;
         return this;
     }
 
@@ -80,6 +88,10 @@ public class BDExportRequest {
 
         if (since != null) {
             parameters.addParameter("_since", since);
+        }
+
+        if (until != null) {
+            parameters.addParameter("_until", until);
         }
 
         if (!types.isEmpty()) {
