@@ -8,11 +8,13 @@ import com.trifork.ehealth.export.future.BDExportFuture;
 import com.trifork.ehealth.export.response.BDExportResourceResult;
 import com.trifork.ehealth.export.response.BDExportResponse;
 import com.trifork.ehealth.export.response.BDPollResponse;
+import com.trifork.ehealth.export.response.TestContainerFactory;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.codesystems.ConditionClinical;
 import org.junit.jupiter.api.*;
+import org.testcontainers.containers.GenericContainer;
 
 import java.io.IOException;
 import java.net.URI;
@@ -34,12 +36,13 @@ public class ApacheHttp4BDExportClientIT {
     private BDExportConverter exportResourceConverter;
     private HttpClient httpClient;
     private FhirContext fhirContext;
+    private GenericContainer<?> hapiContainer = TestContainerFactory.createHapiTestContainer();
 
     @BeforeAll
     void setup() {
         this.fhirContext = FhirContext.forR4();
         this.httpClient = HttpClientBuilder.create().build();
-        this.baseUri = URI.create("http://localhost:8080/fhir");
+        this.baseUri = URI.create("http://localhost:" + hapiContainer.getMappedPort(8080) + "/fhir");
         IGenericClient hapiFhirClient = fhirContext.newRestfulGenericClient(baseUri.toString());
         this.exportClient = new ApacheHttpClient4BDExportClient(fhirContext, httpClient);
         this.exportResourceConverter = new BDExportConverter(hapiFhirClient);
