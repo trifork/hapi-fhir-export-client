@@ -53,6 +53,7 @@ Example of a request, following the examples given in the
             .addType(ResourceType.MedicationRequest)
             .addType(ResourceType.Condition)
             .setSince(new InstantType(new GregorianCalendar(2023, Calendar.OCTOBER, 27)))
+            .setUntil(new InstantType(new GregorianCalendar(2023, Calendar.NOVEMBER, 26)))
             .addTypeFilter(
                 new BDExportTypeFilter(
                     ResourceType.MedicationRequest,
