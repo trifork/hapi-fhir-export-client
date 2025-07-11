@@ -10,7 +10,7 @@ output_success() {
   echo -e "🟢 ${1}: ${2}"
 }
 
-output_awating_action() {
+output_awaiting_action() {
   echo -e "🔵 ${1} ${2}"
 }
 
@@ -121,7 +121,7 @@ ask_which_release_type_then_bump_version_and_deploy() {
     | grep -E '^[0-9]+(\.[0-9]+)+(-SNAPSHOT)?$'
   )"
 
-  output_awating_action "MAVEN" "Type in the type of release:
+  output_awaiting_action "MAVEN" "Type in the type of release:
     'major' - version when you make incompatible API changes
     'minor' - when you add functionality in a backwards compatible manner
     'patch' - version when you make backwards compatible bug fixes"
