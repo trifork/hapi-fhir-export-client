@@ -36,8 +36,9 @@ public class BDInitiatedExportFuture implements BDExportFuture {
     }
 
     @Override
-    public void setPollingInterval(Integer millis) {
+    public BDInitiatedExportFuture setPollingInterval(Integer millis) {
         this.sleepTimeOverrideInMs = millis;
+        return this;
     }
 
     @Override

@@ -61,5 +61,7 @@ public class BDFailedExportFuture implements BDExportFuture {
     }
 
     @Override
-    public void setPollingInterval(Integer millis) {}
+    public BDFailedExportFuture setPollingInterval(Integer millis) {
+        return this;
+    }
 }

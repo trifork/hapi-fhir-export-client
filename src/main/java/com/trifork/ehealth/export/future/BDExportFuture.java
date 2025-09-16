@@ -18,5 +18,5 @@ public interface BDExportFuture extends Future<BDExportResponse> {
      *
      * @param millis polling interval in milliseconds
      */
-    void setPollingInterval(Integer millis);
+    BDExportFuture setPollingInterval(Integer millis);
 }
