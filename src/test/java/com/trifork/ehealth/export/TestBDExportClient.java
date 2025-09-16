@@ -12,6 +12,7 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.BasicHttpEntity;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.hl7.fhir.r4.model.OperationOutcome;
@@ -185,6 +186,18 @@ public class TestBDExportClient {
     }
 
     @Test
+    void export_throws_error_with_non_parseable_body() throws IOException, ExecutionException, InterruptedException {
+        configurePollThrowsErrorWithNonParseableBody();
+
+        Future<BDExportResponse> future = exportClient.initiate(new BDExportRequest(exportUri));
+
+        assertNotNull(future.get());
+
+        assertFalse(future.isCancelled());
+        assertTrue(future.isDone());
+    }
+
+    @Test
     void export_times_out() throws IOException, InterruptedException, ExecutionException {
         configureExportInitiation();
         configurePollInProgress();
@@ -246,6 +259,11 @@ public class TestBDExportClient {
         pollResponse.setStatusCode(Constants.STATUS_HTTP_400_BAD_REQUEST);
         pollResponse.setHeader("x-progress", "FAILED");
         pollResponse.setEntity(null);
+    }
+
+    private void configurePollThrowsErrorWithNonParseableBody() {
+        initateResponse.setStatusCode(Constants.STATUS_HTTP_404_NOT_FOUND);
+        initateResponse.setEntity(new StringEntity("Not found", StandardCharsets.UTF_8));
     }
 
     private void configurePollHasBeenCancelled() {
