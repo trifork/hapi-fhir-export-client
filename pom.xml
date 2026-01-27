@@ -25,7 +25,7 @@
 
         <!-- Test dependencies -->
         <junit.version>5.13.3</junit.version>
-        <assertj.version>3.27.3</assertj.version>
+        <assertj.version>3.27.7</assertj.version>
     </properties>
 
     <repositories>
