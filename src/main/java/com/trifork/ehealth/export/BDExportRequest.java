@@ -21,6 +21,7 @@ public class BDExportRequest {
     private String outputFormat = Constants.CT_FHIR_NDJSON;
     private InstantType since;
     private InstantType until;
+    private Boolean includeHistory;
     private final List<ResourceType> types = new ArrayList<>();
     private final List<BDExportTypeFilter> typeFilters = new ArrayList<>();
 
@@ -46,6 +47,13 @@ public class BDExportRequest {
         Objects.requireNonNull(until);
 
         this.until = until;
+        return this;
+    }
+
+    public BDExportRequest setIncludeHistory(Boolean toggle) {
+        Objects.requireNonNull(toggle);
+
+        this.includeHistory = toggle;
         return this;
     }
 
@@ -92,6 +100,10 @@ public class BDExportRequest {
 
         if (until != null) {
             parameters.addParameter("_until", until);
+        }
+
+        if (includeHistory != null) {
+            parameters.addParameter("_includeHistory", includeHistory);
         }
 
         if (!types.isEmpty()) {

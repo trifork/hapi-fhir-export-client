@@ -15,6 +15,7 @@ import java.net.URI;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class TestBDExportRequest {
@@ -98,5 +99,31 @@ public class TestBDExportRequest {
                 "Condition?clinicalStatus=active,Condition?category=problem-list-item",
                 parameters.getParameterValue("_typeFilter").primitiveValue()
         );
+    }
+
+    @Test
+    void include_history_is_mapped_to_a_boolean_parameter() {
+        Parameters parameters = BDExportRequest.createSystemExportRequest(baseUri)
+                .setIncludeHistory(true)
+                .toParameters(FhirContext.forR4());
+
+        assertEquals("true", parameters.getParameterValue("_includeHistory").primitiveValue());
+    }
+
+    @Test
+    void include_history_can_be_set_to_false() {
+        Parameters parameters = BDExportRequest.createSystemExportRequest(baseUri)
+                .setIncludeHistory(false)
+                .toParameters(FhirContext.forR4());
+
+        assertEquals("false", parameters.getParameterValue("_includeHistory").primitiveValue());
+    }
+
+    @Test
+    void include_history_is_left_out_when_not_set() {
+        Parameters parameters = BDExportRequest.createSystemExportRequest(baseUri)
+                .toParameters(FhirContext.forR4());
+
+        assertFalse(parameters.hasParameter("_includeHistory"));
     }
 }
