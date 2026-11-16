@@ -94,6 +94,27 @@ Assuming the client has been configured, and a request has been made, a request 
     ...
 ```
 
+## Starting an export and waiting for the result
+[BDExportRunner](src/main/java/com/trifork/ehealth/export/BDExportRunner.java) starts an export, polls the server until
+the export has finished, and returns the output items of the result.
+
+```java
+    ...
+
+        List<BDExportResultResponse.OutputItem> output = BDExportRunner.exportAndWait(
+                exportClient, request, Duration.ofMinutes(15), Duration.ofSeconds(5), fhirContext);
+
+    ...
+```
+
+`exportAndWait` throws a `BDExportFailedException` when the server reports an error, when the result holds error items,
+or when the response holds neither a result nor an error. `exportAndWait` throws a `BDExportTimeoutException` when the
+export does not finish within the timeout.
+
+`exportAndWait` does **not** cancel the export on a timeout, so the export can still be running on the server. HAPI
+can answer a request with identical parameters with an old job. A caller that retries after a timeout should therefore
+change the parameters of the request, for example by moving `_since` back a random amount.
+
 ## Resuming an export
 If the application crashes, while it awaits the future, or another thread should pick up the responsibility for
 fetching the export result, it is possible to resume an ongoing export, given the polling location of the export
